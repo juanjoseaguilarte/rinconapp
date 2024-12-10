@@ -127,9 +127,11 @@ class _HomeScreenState extends State<HomeScreen> {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.grey, width: 1),
             ),
-            child: Text(
-              user['name'],
-              style: const TextStyle(fontSize: 14),
+            child: Center(
+              child: Text(
+                user['name'],
+                style: const TextStyle(fontSize: 14),
+              ),
             ),
           ),
         );
@@ -142,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_loggedInUser == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Seleccione USER'),
+          title: const Text('Seleccione Usuario'),
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
