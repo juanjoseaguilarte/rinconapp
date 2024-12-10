@@ -142,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_loggedInUser == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Seleccione Usuario'),
+          title: const Text('Seleccione USER'),
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),

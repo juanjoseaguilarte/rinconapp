@@ -80509,7 +80509,7 @@ m.push(A.aX("Contado: "+B.c.a4(p,2)+" \u20ac",q,q,q,B.R3,q,q))
 m.push(B.a1)
 m.push(A.bU(B.U9,r.ga28(),q))
 m.push(B.a1)
-m.push(A.bU(B.Ud,r.gacA(),q))
+m.push(A.bU(B.Ue,r.gacA(),q))
 return A.ew(o,A.asw(A.cV(m,B.W,B.C,B.a0),B.b4),q,q)}}
 A.ag1.prototype={
 $0(){this.a.W(new A.ag0())},
@@ -80536,7 +80536,7 @@ q=this.a
 q.a=q.a+(p*b+r)},
 $S:506}
 A.afX.prototype={
-$1(a){return A.lG(A.b([A.iL(B.UL,new A.afV(a),null),A.bU(B.V_,new A.afW(this.a,this.b,a),null)],t.p),B.UI,B.Uf)},
+$1(a){return A.lG(A.b([A.iL(B.UL,new A.afV(a),null),A.bU(B.V_,new A.afW(this.a,this.b,a),null)],t.p),B.UI,B.Ug)},
 $S:27}
 A.afV.prototype={
 $0(){A.bi(this.a,!1).eM(null)
@@ -80623,9 +80623,9 @@ H(a){var s,r,q=this,p=null,o=$.cA,n=(o==null?$.cA=$.fG():o).h6("[DEFAULT]")
 A.df(n,$.fF(),!0)
 s=new A.IM(A.IO(new A.dK(n)))
 o=A.em(p,p,B.UM)
-r=A.b([A.bU(B.UB,new A.XW(q,a,s),A.ii(p,p,p,p,p,p,p,p,p,p,p,B.dO,p,p,new A.c1(A.i6(0),B.m),p,p,p,p)),A.bU(B.Uk,new A.XX(q,a,s),A.ii(p,p,p,p,p,p,p,p,p,p,p,B.dO,p,p,new A.c1(A.i6(0),B.m),p,p,p,p)),A.bU(B.Uy,new A.XY(q,a),A.ii(p,p,p,p,p,p,p,p,p,p,p,B.dO,p,p,new A.c1(A.i6(0),B.m),p,p,p,p))],t.p)
+r=A.b([A.bU(B.UB,new A.XW(q,a,s),A.ii(p,p,p,p,p,p,p,p,p,p,p,B.dO,p,p,new A.c1(A.i6(0),B.m),p,p,p,p)),A.bU(B.Ul,new A.XX(q,a,s),A.ii(p,p,p,p,p,p,p,p,p,p,p,B.dO,p,p,new A.c1(A.i6(0),B.m),p,p,p,p)),A.bU(B.Uy,new A.XY(q,a),A.ii(p,p,p,p,p,p,p,p,p,p,p,B.dO,p,p,new A.c1(A.i6(0),B.m),p,p,p,p))],t.p)
 if(J.c(q.c.h(0,"role"),"Admin"))r.push(A.bU(B.z9,new A.XZ(q,s,a),A.ii(p,p,p,p,p,p,p,p,p,p,p,B.dO,p,p,new A.c1(A.i6(0),B.m),p,p,p,p)))
-r.push(A.bU(B.Uc,new A.Y_(q,a,s),A.ii(p,p,p,p,p,p,p,p,p,p,p,B.dO,p,p,new A.c1(A.i6(0),B.m),p,p,p,p)))
+r.push(A.bU(B.Ud,new A.Y_(q,a,s),A.ii(p,p,p,p,p,p,p,p,p,p,p,B.dO,p,p,new A.c1(A.i6(0),B.m),p,p,p,p)))
 return A.ew(o,new A.b3(B.b4,A.BL(r,20,20),p),p,p)}}
 A.XW.prototype={
 $0(){var s=A.ec(new A.XV(this.a,this.c),null,t.z)
@@ -80722,7 +80722,7 @@ return A.B(null,r)}})
 return A.C($async$wB,r)},
 ga3G(){var s=J.nG(this.a.c,new A.akk(this))
 return A.X(s,!0,s.$ti.i("t.E"))},
-H(a){var s=this,r=null,q=s.ga3G(),p=A.em(r,r,B.z9),o=A.bU(B.Uo,s.gaaP(),r),n=s.d,m=t.p
+H(a){var s=this,r=null,q=s.ga3G(),p=A.em(r,r,B.z9),o=A.bU(B.Up,s.gaaP(),r),n=s.d,m=t.p
 n=A.hK(A.b([o,B.Oy,A.aX("Fecha: "+A.avf("dd/MM/yyyy").tF(n),r,r,r,B.hT,r,r)],m),B.W,B.C,B.a0)
 o=q.length
 return A.ew(p,A.cV(A.b([new A.b3(B.b4,n,r),A.fe(o===0?B.Ce:A.a4g(new A.akm(s,q),o),1)],m),B.W,B.C,B.a0),r,r)}}
@@ -81347,7 +81347,7 @@ return A.C($async$vx,r)},
 a18(){var s=this.r,r=A.Z(s).i("a1<1,il>")
 return A.BL(A.X(new A.a1(s,new A.aiL(this),r),!0,r.i("ag.E")),10,10)},
 H(a){var s,r,q,p,o=this,n=null,m="role",l=o.w
-if(l==null){l=A.em(n,n,B.Up)
+if(l==null){l=A.em(n,n,B.Ub)
 return A.ew(l,new A.b3(B.b4,o.r.length===0?B.cx:o.a18(),n),n,n)}l=A.aX("Bienvenido "+A.j(l.h(0,"name")),n,n,n,n,n,n)
 s=t.p
 l=A.em(A.b([A.m6(n,B.FA,n,new A.aj_(o),n,n)],s),n,l)
@@ -82199,7 +82199,7 @@ $1(a){var s=this.a.a
 return new A.pO(s.c,s.d,this.b,null)},
 $S:539}
 A.u5.prototype={
-H(a){var s=this,r=null,q=A.ii(r,r,r,r,r,r,r,r,r,r,r,B.dO,r,r,new A.c1(B.ai,B.m),r,r,r,r),p=A.em(r,r,B.UF),o=A.b([A.bU(B.Va,new A.adI(s,a),q),A.bU(B.Uh,new A.adJ(s,a),q),A.bU(B.UY,new A.adK(s,a),q)],t.p)
+H(a){var s=this,r=null,q=A.ii(r,r,r,r,r,r,r,r,r,r,r,B.dO,r,r,new A.c1(B.ai,B.m),r,r,r,r),p=A.em(r,r,B.UF),o=A.b([A.bU(B.Va,new A.adI(s,a),q),A.bU(B.Ui,new A.adJ(s,a),q),A.bU(B.UY,new A.adK(s,a),q)],t.p)
 if(J.c(s.e.h(0,"role"),"Admin"))o.push(A.bU(B.UH,new A.adL(s,a),q))
 return A.ew(p,new A.b3(B.b4,A.BL(o,20,20),r),r,r)}}
 A.adI.prototype={
@@ -82250,7 +82250,7 @@ A.adF.prototype={
 $1(a){var s,r={}
 r.a=null
 s=J.f5(this.b,new A.adA(),t.b7)
-return A.lG(null,A.arH(B.Un,!0,A.X(s,!0,s.$ti.i("ag.E")),new A.adB(r,this.a,a),null,t.N),B.Ug)},
+return A.lG(null,A.arH(B.Uo,!0,A.X(s,!0,s.$ti.i("ag.E")),new A.adB(r,this.a,a),null,t.N),B.Uh)},
 $S:27}
 A.adB.prototype={
 $1(a){var s,r=this.a
@@ -82285,7 +82285,7 @@ if(o==null)return B.Mu
 s=this.a
 r=J.nG(o,new A.a3o(s))
 q=new A.dO(r,new A.a3p(s),r.$ti.i("dO<1,L>")).tE(0,0,new A.a3q())
-return A.ew(A.em(p,p,B.Um),new A.b3(B.b4,A.cV(A.b([A.aX("Propina Total: \u20ac"+B.c.a4(q,2),p,p,p,B.kI,p,p),B.a1,B.V7,B.f7,A.bU(B.kJ,new A.a3r(s,o,a),A.ii(p,p,p,p,p,p,p,p,p,p,p,B.hO,p,p,p,p,p,p,p))],t.p),B.b3,B.C,B.a0),p),p,p)},
+return A.ew(A.em(p,p,B.Un),new A.b3(B.b4,A.cV(A.b([A.aX("Propina Total: \u20ac"+B.c.a4(q,2),p,p,p,B.kI,p,p),B.a1,B.V7,B.f7,A.bU(B.kJ,new A.a3r(s,o,a),A.ii(p,p,p,p,p,p,p,p,p,p,p,B.hO,p,p,p,p,p,p,p))],t.p),B.b3,B.C,B.a0),p),p,p)},
 $S:545}
 A.a3o.prototype={
 $1(a){var s=a.e.h(0,this.a.c)
@@ -82605,7 +82605,7 @@ A.aoe.prototype={
 $0(){this.a.e.D(0,this.b)},
 $S:0}
 A.aob.prototype={
-$1(a){return A.lG(A.b([A.iL(B.cY,new A.ao9(a),null),A.bU(B.kK,new A.aoa(a),null)],t.p),B.Ui,B.ze)},
+$1(a){return A.lG(A.b([A.iL(B.cY,new A.ao9(a),null),A.bU(B.kK,new A.aoa(a),null)],t.p),B.Uj,B.ze)},
 $S:27}
 A.ao9.prototype={
 $0(){A.bi(this.a,!1).eM(!1)
@@ -86778,8 +86778,8 @@ B.Cg=new A.fH(B.T,null,null,B.Uu,null)
 B.Yj=new A.aet(0,"material")
 B.Ck=new A.wt(null)
 B.cx=new A.fH(B.T,null,null,B.Ck,null)
-B.Ub=new A.ah("Lista de usuarios online aqu\xed",null,null,null,null,null,null,null,null)
-B.Ch=new A.fH(B.T,null,null,B.Ub,null)
+B.Uc=new A.ah("Lista de usuarios online aqu\xed",null,null,null,null,null,null,null,null)
+B.Ch=new A.fH(B.T,null,null,B.Uc,null)
 B.Ci=new A.wr(null,null,null,null,null,null,null,null,null)
 B.Cj=new A.ws(null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
 B.ix=new A.dv(0,B.m)
@@ -87314,8 +87314,8 @@ B.X3=new A.lh(12,0.14)
 B.ni=A.b(s([B.WZ,B.X1,B.X0,B.X2,B.X_,B.X3]),A.aj("F<lh>"))
 B.Ua=new A.ah("Ma\xf1ana",null,null,null,null,null,null,null,null)
 B.Ed=new A.eq("ma\xf1ana",B.Ua,B.d5,null,t.b7)
-B.Uj=new A.ah("Noche",null,null,null,null,null,null,null,null)
-B.Ee=new A.eq("noche",B.Uj,B.d5,null,t.b7)
+B.Uk=new A.ah("Noche",null,null,null,null,null,null,null,null)
+B.Ee=new A.eq("noche",B.Uk,B.d5,null,t.b7)
 B.nj=A.b(s([B.Ed,B.Ee]),A.aj("F<eq<o>>"))
 B.Bd=new A.lF()
 B.eV=new A.LU(1,"page")
@@ -88831,10 +88831,10 @@ B.UT=new A.ah("Empleado eliminado",null,null,null,null,null,null,null,null)
 B.OP=new A.cu(B.UT,null,null,null,null,null,null,null,null,null,null,null,null,B.X,null,null,null,B.l,null)
 B.UW=new A.ah("Debe ingresar un importe y un motivo",null,null,null,null,null,null,null,null)
 B.OQ=new A.cu(B.UW,null,null,null,null,null,null,null,null,null,null,null,null,B.X,null,null,null,B.l,null)
-B.Ue=new A.ah("Arqueo guardado con descuadre.",null,null,null,null,null,null,null,null)
-B.OR=new A.cu(B.Ue,null,null,null,null,null,null,null,null,null,null,null,null,B.X,null,null,null,B.l,null)
-B.Ul=new A.ah("No se puede eliminar a un usuario Admin",null,null,null,null,null,null,null,null)
-B.OS=new A.cu(B.Ul,null,null,null,null,null,null,null,null,null,null,null,null,B.X,null,null,null,B.l,null)
+B.Uf=new A.ah("Arqueo guardado con descuadre.",null,null,null,null,null,null,null,null)
+B.OR=new A.cu(B.Uf,null,null,null,null,null,null,null,null,null,null,null,null,B.X,null,null,null,B.l,null)
+B.Um=new A.ah("No se puede eliminar a un usuario Admin",null,null,null,null,null,null,null,null)
+B.OS=new A.cu(B.Um,null,null,null,null,null,null,null,null,null,null,null,null,B.X,null,null,null,B.l,null)
 B.UQ=new A.ah("Error al realizar el pago",null,null,null,null,null,null,null,null)
 B.yK=new A.cu(B.UQ,null,null,null,null,null,null,null,null,null,null,null,null,B.X,null,null,null,B.l,null)
 B.US=new A.ah("No hay empleados disponibles",null,null,null,null,null,null,null,null)
@@ -89240,27 +89240,27 @@ B.U5=new A.ah("Men\xfa Principal",null,null,null,null,null,null,null,null)
 B.z8=new A.ah("Seleccionar Turno:",null,B.cX,null,null,null,null,null,null)
 B.U6=new A.ah("Editar Propina",null,null,null,null,null,null,null,null)
 B.U9=new A.ah("Confirmar Conteo",null,null,null,null,null,null,null,null)
-B.Uc=new A.ah("Pago Caja Arriba",null,null,null,null,null,null,null,null)
+B.Ub=new A.ah("Seleccione USER",null,null,null,null,null,null,null,null)
+B.Ud=new A.ah("Pago Caja Arriba",null,null,null,null,null,null,null,null)
 B.z9=new A.ah("Movimientos",null,null,null,null,null,null,null,null)
 B.za=new A.ah("Confirmar",null,null,null,null,null,null,null,null)
-B.Ud=new A.ah("Ver Movimientos",null,null,null,null,null,null,null,null)
+B.Ue=new A.ah("Ver Movimientos",null,null,null,null,null,null,null,null)
 B.zb=new A.ah("Empleados",null,null,null,null,null,null,null,null)
 B.zc=new A.ah("Propinas",null,null,null,null,null,null,null,null)
-B.Uf=new A.ah("Diferencia en el conteo",null,null,null,null,null,null,null,null)
+B.Ug=new A.ah("Diferencia en el conteo",null,null,null,null,null,null,null,null)
 B.kJ=new A.ah("Confirmar Pago",null,null,null,null,null,null,null,null)
-B.Ug=new A.ah("Seleccionar Camarero",null,null,null,null,null,null,null,null)
+B.Uh=new A.ah("Seleccionar Camarero",null,null,null,null,null,null,null,null)
 B.cY=new A.ah("Cancelar",null,null,null,null,null,null,null,null)
 B.zd=new A.ah("Propina en Tarjeta de Cr\xe9dito:",null,B.cX,null,null,null,null,null,null)
-B.Uh=new A.ah("Pagar Todas Las Propinas",null,null,B.c_,null,null,null,null,null)
+B.Ui=new A.ah("Pagar Todas Las Propinas",null,null,B.c_,null,null,null,null,null)
 B.ze=new A.ah("Atenci\xf3n",null,null,null,null,null,null,null,null)
-B.Ui=new A.ah("A\xfan quedan propinas pendientes por pagar. Si sales ahora, se proceder\xe1 a pagar todas las propinas autom\xe1ticamente (excepto Admin). \xbfDeseas continuar?",null,null,null,null,null,null,null,null)
-B.Uk=new A.ah("Salida",null,null,null,null,null,null,null,null)
+B.Uj=new A.ah("A\xfan quedan propinas pendientes por pagar. Si sales ahora, se proceder\xe1 a pagar todas las propinas autom\xe1ticamente (excepto Admin). \xbfDeseas continuar?",null,null,null,null,null,null,null,null)
+B.Ul=new A.ah("Salida",null,null,null,null,null,null,null,null)
 B.kK=new A.ah("Aceptar",null,null,null,null,null,null,null,null)
 B.zf=new A.ah("Propina en Efectivo:",null,B.cX,null,null,null,null,null,null)
-B.Um=new A.ah("Pagar Propina Individual",null,null,null,null,null,null,null,null)
-B.Un=new A.ah("Selecciona un camarero",null,null,null,null,null,null,null,null)
-B.Uo=new A.ah("Seleccionar Fecha",null,null,null,null,null,null,null,null)
-B.Up=new A.ah("Seleccione Usuario",null,null,null,null,null,null,null,null)
+B.Un=new A.ah("Pagar Propina Individual",null,null,null,null,null,null,null,null)
+B.Uo=new A.ah("Selecciona un camarero",null,null,null,null,null,null,null,null)
+B.Up=new A.ah("Seleccionar Fecha",null,null,null,null,null,null,null,null)
 B.Us=new A.ah("Actualizar Propina",null,null,null,null,null,null,null,null)
 B.Uv=new A.ah("Conteo de Caja (Arqueo)",null,null,null,null,null,null,null,null)
 B.Uw=new A.ah("Pagar Todas Las Propinas",null,null,null,null,null,null,null,null)
