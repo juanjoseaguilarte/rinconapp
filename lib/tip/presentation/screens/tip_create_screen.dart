@@ -89,6 +89,7 @@ class _TipCreateScreenState extends State<TipCreateScreen> {
     }
     return Wrap(
       spacing: 10,
+      alignment: WrapAlignment.center,
       children: _employees.map((employee) {
         final isSelected = _selectedEmployees.contains(employee);
         return GestureDetector(
@@ -116,7 +117,7 @@ class _TipCreateScreenState extends State<TipCreateScreen> {
               employee.name,
               style: TextStyle(
                 color: isSelected ? Colors.white : Colors.black,
-                fontSize: 14,
+                fontSize: 16,
               ),
             ),
           ),
@@ -153,8 +154,12 @@ class _TipCreateScreenState extends State<TipCreateScreen> {
 
       // Crear el mapa de pagos con isDeleted = false para todos
       final employeePayments = {
-        for (var employee in allParticipants)
-          employee.id: {'amount': sharePerPerson, 'isDeleted': false},
+        for (var employee in _selectedEmployees)
+          employee.id: {
+            'cash': cashTip / _selectedEmployees.length,
+            'card': cardTip / _selectedEmployees.length,
+            'isDeleted': false,
+          }
       };
 
       final tip = Tip(
@@ -179,7 +184,7 @@ class _TipCreateScreenState extends State<TipCreateScreen> {
         _selectedDate = DateTime.now();
       });
 
-      Navigator.pop(context);
+      Navigator.popUntil(context, (route) => route.isFirst);
     } catch (e) {
       print('Error al procesar la propina: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -216,17 +221,25 @@ class _TipCreateScreenState extends State<TipCreateScreen> {
                 const SizedBox(height: 20),
                 const Text('Seleccionar Turno:',
                     style: TextStyle(fontSize: 16)),
-                DropdownButton<String>(
-                  value: _selectedShift,
-                  items: const [
-                    DropdownMenuItem(value: 'mañana', child: Text('Mañana')),
-                    DropdownMenuItem(value: 'noche', child: Text('Noche')),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => _selectedShift = value);
-                    }
-                  },
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey, width: 2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButton<String>(
+                    value: _selectedShift,
+                    borderRadius: const BorderRadius.all(Radius.zero),
+                    items: const [
+                      DropdownMenuItem(value: 'mañana', child: Text('Mañana')),
+                      DropdownMenuItem(value: 'noche', child: Text('Noche')),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _selectedShift = value);
+                      }
+                    },
+                  ),
                 ),
                 const SizedBox(height: 20),
                 const Text('Seleccionar Empleados:',
@@ -255,20 +268,35 @@ class _TipCreateScreenState extends State<TipCreateScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text('Total Propina:',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Text(
-                  '$_totalTip €',
-                  style: const TextStyle(fontSize: 20, color: Colors.green),
+                const Center(
+                  child: Column(
+                    children: [
+                      Text('Total Propina:',
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+                Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        '$_totalTip €',
+                        style:
+                            const TextStyle(fontSize: 30, color: Colors.green),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _submitTip,
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(50),
+                    textStyle: const TextStyle(fontSize: 30),
+                    foregroundColor: Colors.black,
                   ),
-                  child: const Text('Registrar Propina'),
+                  child: const Text('Añadir Propina'),
                 ),
               ],
             ),

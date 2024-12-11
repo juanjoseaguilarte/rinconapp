@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_propinas/employee/application/services/employee_service.dart';
+import 'package:gestion_propinas/employee/domain/entities/employee.dart';
 import 'package:gestion_propinas/tip/domain/entities/tip.dart';
 import 'package:gestion_propinas/tip/domain/repositories/tip_repository.dart';
 import 'package:gestion_propinas/tip/presentation/screens/tip_create_screen.dart';
+import 'package:gestion_propinas/tip/presentation/screens/tip_list_screen.dart';
 import 'package:gestion_propinas/tip/presentation/screens/tip_pay_screen.dart';
+import 'package:gestion_propinas/tip/presentation/screens/individual_tip_pay_screen.dart';
 
 class TipOptionsScreen extends StatefulWidget {
   final EmployeeService employeeService;
@@ -100,14 +103,39 @@ class _TipOptionsScreenState extends State<TipOptionsScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TipPayScreen(
-                          tipRepository: widget.tipRepository,
-                          employeeService: widget.employeeService,
-                        ),
-                      ),
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Confirmación'),
+                          content: const Text(
+                            'Una vez dentro, las propinas se pagarán automáticamente y no podrás regresar. ¿Deseas continuar?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Cierra el modal
+                              },
+                              child: const Text('Cancelar'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Cierra el modal
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TipPayScreen(
+                                      tipRepository: widget.tipRepository,
+                                      employeeService: widget.employeeService,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: const Text('Aceptar'),
+                            ),
+                          ],
+                        );
+                      },
                     );
                   },
                   style: buttonStyle,
@@ -115,6 +143,23 @@ class _TipOptionsScreenState extends State<TipOptionsScreen> {
                     'Pagar Todas Las Propinas',
                     textAlign: TextAlign.center,
                   ),
+                ),
+                ElevatedButton(
+                  onPressed: widget.loggedUser['role'] == 'Admin'
+                      ? () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TipListScreen(
+                                tipRepository: widget.tipRepository,
+                                employeeService: widget.employeeService,
+                              ),
+                            ),
+                          );
+                        }
+                      : null, // Deshabilitar el botón si no es Admin
+                  style: buttonStyle,
+                  child: const Text('Listado de Propinas'),
                 ),
               ],
             ),
@@ -125,31 +170,43 @@ class _TipOptionsScreenState extends State<TipOptionsScreen> {
   }
 
   List<Map<String, dynamic>> _getEmployeesWithPendingTips(
-      List<Tip> tips, List employees) {
+      List<Tip> tips, List<Employee> employees) {
+    print('Tips recibidos: ${tips.length}');
     final Map<String, double> employeeTotals = {};
 
     for (var tip in tips) {
+      print('Procesando Tip ID: ${tip.id}');
       tip.employeePayments.forEach((employeeId, paymentDetails) {
+        print('Empleado ID: $employeeId, Detalles: $paymentDetails');
         if (!(paymentDetails['isDeleted'] ?? false)) {
-          final amount = (paymentDetails['amount'] as num?)?.toDouble() ?? 0.0;
+          final cash = (paymentDetails['cash'] as num?)?.toDouble() ?? 0.0;
+          final card = (paymentDetails['card'] as num?)?.toDouble() ?? 0.0;
+          final total = cash + card;
+          print(
+              'Empleado $employeeId, Cash: $cash, Card: $card, Total: $total');
           employeeTotals[employeeId] =
-              (employeeTotals[employeeId] ?? 0.0) + amount;
+              (employeeTotals[employeeId] ?? 0.0) + total;
         }
       });
     }
+
+    print('Totales calculados: $employeeTotals');
 
     final Map<String, String> employeeNames = {
       for (var employee in employees) employee.id: employee.name,
     };
 
+    print('Nombres de empleados: $employeeNames');
+
     final List<Map<String, dynamic>> filteredEmployees = employeeTotals.entries
-        .where((entry) => employeeNames[entry.key] != null)
         .map((entry) => {
               'id': entry.key,
               'amount': entry.value,
               'name': employeeNames[entry.key] ?? 'Desconocido',
             })
         .toList();
+
+    print('Empleados filtrados: $filteredEmployees');
 
     return filteredEmployees
         .where((employee) =>
@@ -206,7 +263,8 @@ class _TipOptionsScreenState extends State<TipOptionsScreen> {
                                 amount: employee['amount'] as double,
                                 employeeId: employee['id'] as String,
                                 tipRepository: widget.tipRepository,
-                                reloadData: _loadData, // Agregando recarga
+                                employeeService: widget.employeeService,
+                                reloadData: _loadData,
                               ),
                             ),
                           );
@@ -219,87 +277,6 @@ class _TipOptionsScreenState extends State<TipOptionsScreen> {
           },
         );
       },
-    );
-  }
-}
-
-class IndividualTipPayScreen extends StatelessWidget {
-  final String employeeName;
-  final double amount;
-  final String employeeId;
-  final TipRepository tipRepository;
-  final VoidCallback reloadData;
-
-  const IndividualTipPayScreen({
-    Key? key,
-    required this.employeeName,
-    required this.amount,
-    required this.employeeId,
-    required this.tipRepository,
-    required this.reloadData,
-  }) : super(key: key);
-
-  Future<void> _payTips(BuildContext context) async {
-    try {
-      final tips = await tipRepository.fetchTips();
-
-      for (var tip in tips) {
-        if (tip.employeePayments.containsKey(employeeId)) {
-          final updatedPayments = Map.of(tip.employeePayments);
-
-          if (!(updatedPayments[employeeId]!['isDeleted'] ?? false)) {
-            updatedPayments[employeeId]!['isDeleted'] = true;
-
-            final updatedTip = tip.copyWith(employeePayments: updatedPayments);
-            await tipRepository.updateTip(updatedTip);
-          }
-        }
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Propina pagada exitosamente a $employeeName')),
-      );
-
-      reloadData(); // Recargar datos al finalizar
-      Navigator.pop(context);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al pagar la propina: $e')),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Pagar Propina a $employeeName'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Propina Total: €${amount.toStringAsFixed(2)}',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Una vez confirmes, no habrá vuelta atrás. ¿Deseas continuar?',
-              style: TextStyle(fontSize: 16),
-            ),
-            const Spacer(),
-            ElevatedButton(
-              onPressed: () => _payTips(context),
-              child: const Text('Confirmar Pago'),
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(50),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

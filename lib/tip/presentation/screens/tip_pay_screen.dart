@@ -120,7 +120,8 @@ class _TipPayScreenState extends State<TipPayScreen> {
               employeeId != adminId) {
             // Excluir propinas del Admin
             final amount =
-                (paymentDetails['amount'] as num?)?.toDouble() ?? 0.0;
+                ((paymentDetails['cash'] as num?)?.toDouble() ?? 0.0) +
+                    ((paymentDetails['card'] as num?)?.toDouble() ?? 0.0);
             employeeTotals[employeeId] =
                 (employeeTotals[employeeId] ?? 0) + amount;
           }
@@ -300,10 +301,6 @@ class _TipPayScreenState extends State<TipPayScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ElevatedButton(
-                onPressed: () => _selectDate(context),
-                child: const Text('Seleccionar Lunes'),
-              ),
               if (startDate != null && endDate != null)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -338,10 +335,6 @@ class _TipPayScreenState extends State<TipPayScreen> {
                           title: Text('Empleado: $employeeName'),
                           subtitle:
                               Text('Total: €${amount.toStringAsFixed(2)}'),
-                          trailing: ElevatedButton(
-                            onPressed: () => _payTips(employeeId, amount),
-                            child: const Text('Pagar'),
-                          ),
                         ),
                       );
                     },

@@ -23,7 +23,11 @@ class Tip {
       'amount': amount,
       'date': date.toIso8601String(),
       'shift': shift,
-      'employeePayments': employeePayments,
+      'employeePayments': employeePayments.map((key, value) => MapEntry(key, {
+            'cash': value['cash'] ?? 0.0,
+            'card': value['card'] ?? 0.0,
+            'isDeleted': value['isDeleted'] ?? false,
+          })),
       'adminShare': adminShare,
       'isDeleted': isDeleted,
     };
@@ -40,7 +44,11 @@ class Tip {
           final String parsedKey = key.toString();
           final Map<String, dynamic> parsedValue =
               Map<String, dynamic>.from(value as Map<dynamic, dynamic>);
-          return MapEntry(parsedKey, parsedValue);
+          return MapEntry(parsedKey, {
+            'cash': parsedValue['cash'] ?? 0.0,
+            'card': parsedValue['card'] ?? 0.0,
+            'isDeleted': parsedValue['isDeleted'] ?? false,
+          });
         },
       ),
       adminShare: data['adminShare'] ?? 0.0,

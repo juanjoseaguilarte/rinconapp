@@ -1,21 +1,17 @@
-// tip_list_screen.dart
 import 'package:flutter/material.dart';
-import 'package:gestion_propinas/employee/application/services/employee_service.dart';
 import 'package:gestion_propinas/tip/domain/entities/tip.dart';
 import 'package:gestion_propinas/tip/domain/repositories/tip_repository.dart';
-import 'tip_edit_screen.dart';
+import 'package:gestion_propinas/employee/application/services/employee_service.dart';
+import 'package:gestion_propinas/tip/presentation/screens/tip_edit_screen.dart';
 
 class TipListScreen extends StatefulWidget {
   final TipRepository tipRepository;
-  final EmployeeService employeeService;
-  final List<Tip>
-      tips; // Se pasan las propinas ya cargadas desde TipAdminScreen
+  final EmployeeService employeeService; // Añadido
 
   const TipListScreen({
     Key? key,
     required this.tipRepository,
-    required this.employeeService,
-    required this.tips,
+    required this.employeeService, // Añadido
   }) : super(key: key);
 
   @override
@@ -23,36 +19,16 @@ class TipListScreen extends StatefulWidget {
 }
 
 class _TipListScreenState extends State<TipListScreen> {
-  late List<Tip> sortedTips;
+  late Future<List<Tip>> _tipsFuture;
 
   @override
   void initState() {
     super.initState();
-    _sortTips(widget.tips);
+    _fetchTips();
   }
 
-  void _sortTips(List<Tip> tips) {
-    sortedTips = List<Tip>.from(tips);
-    sortedTips
-        .sort((a, b) => b.date.compareTo(a.date)); // más nueva a más vieja
-  }
-
-  Future<void> _reloadTips() async {
-    final updatedTips = await widget.tipRepository.fetchTips();
-    setState(() {
-      _sortTips(updatedTips);
-    });
-  }
-
-  bool _isTipPaid(Tip tip) {
-    // Ahora se considera "pagada" si al menos una entrada de employeePayments tiene isDeleted == true
-    for (var payment in tip.employeePayments.values) {
-      final isDeleted = payment['isDeleted'] ?? false;
-      if (isDeleted) {
-        return true; // Encontramos una pagada, por lo tanto la propina se considera "no editable"
-      }
-    }
-    return false; // Ninguna parte está pagada, se puede editar
+  void _fetchTips() {
+    _tipsFuture = widget.tipRepository.fetchTips();
   }
 
   @override
@@ -61,41 +37,55 @@ class _TipListScreenState extends State<TipListScreen> {
       appBar: AppBar(
         title: const Text('Listado de Propinas'),
       ),
-      body: ListView.builder(
-        itemCount: sortedTips.length,
-        itemBuilder: (context, index) {
-          final tip = sortedTips[index];
-          final isPaid = _isTipPaid(tip);
+      body: FutureBuilder<List<Tip>>(
+        future: _tipsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text('No hay propinas registradas.'),
+            );
+          }
 
-          return Card(
-            margin: const EdgeInsets.all(8.0),
-            child: ListTile(
-              title: Text(
-                'Fecha: ${tip.date.year}-${tip.date.month}-${tip.date.day}, Turno: ${tip.shift}',
-              ),
-              subtitle: Text('Total: €${tip.amount.toStringAsFixed(2)}'),
-              trailing: ElevatedButton(
-                onPressed: isPaid
-                    ? null // Si está pagada, se deshabilita el botón
-                    : () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => TipEditScreen(
-                              tipRepository: widget.tipRepository,
-                              employeeService: widget.employeeService,
-                              tip: tip,
-                            ),
+          final tips = snapshot.data!;
+          tips.sort((a, b) =>
+              b.date.compareTo(a.date)); // Ordenar por fecha descendente
+
+          return ListView.builder(
+            itemCount: tips.length,
+            itemBuilder: (context, index) {
+              final tip = tips[index];
+              return Card(
+                child: ListTile(
+                  title: Text(
+                    'Fecha: ${tip.date.day}/${tip.date.month}/${tip.date.year}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text('Total: €${tip.amount.toStringAsFixed(2)}'),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TipEditScreen(
+                            tip: tip,
+                            tipRepository: widget.tipRepository,
+                            employeeService: widget.employeeService, // Añadido
                           ),
-                        );
-
-                        if (result == true) {
-                          await _reloadTips(); // Recarga al volver de edición
-                        }
-                      },
-                child: const Text('Editar'),
-              ),
-            ),
+                        ),
+                      ).then((_) {
+                        // Recargar la lista tras editar
+                        _fetchTips();
+                        setState(() {});
+                      });
+                    },
+                  ),
+                ),
+              );
+            },
           );
         },
       ),

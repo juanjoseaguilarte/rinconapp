@@ -283,7 +283,6 @@ class _TipAdminScreenState extends State<TipAdminScreen> {
                           builder: (context) => TipListScreen(
                             tipRepository: widget.tipRepository,
                             employeeService: widget.employeeService,
-                            tips: tips,
                           ),
                         ),
                       );
