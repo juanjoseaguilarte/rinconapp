@@ -34,24 +34,24 @@ class Tip {
   }
 
   static Tip fromMap(String id, Map<String, dynamic> data) {
+    final employeePayments = (data['employeePayments'] as Map<dynamic, dynamic>)
+        .map<String, Map<String, dynamic>>((key, value) {
+      final Map<String, dynamic> parsedValue =
+          Map<String, dynamic>.from(value as Map<dynamic, dynamic>);
+      return MapEntry(key.toString(), {
+        'cash': (parsedValue['cash'] as num?)?.toDouble() ?? 0.0,
+        'card': (parsedValue['card'] as num?)?.toDouble() ?? 0.0,
+        'isDeleted': parsedValue['isDeleted'] ?? false,
+      });
+    });
+
     return Tip(
       id: id,
-      amount: data['amount'] ?? 0.0,
+      amount: (data['amount'] as num).toDouble(),
       date: DateTime.parse(data['date']),
       shift: data['shift'] ?? '',
-      employeePayments: (data['employeePayments'] as Map<dynamic, dynamic>).map(
-        (key, value) {
-          final String parsedKey = key.toString();
-          final Map<String, dynamic> parsedValue =
-              Map<String, dynamic>.from(value as Map<dynamic, dynamic>);
-          return MapEntry(parsedKey, {
-            'cash': parsedValue['cash'] ?? 0.0,
-            'card': parsedValue['card'] ?? 0.0,
-            'isDeleted': parsedValue['isDeleted'] ?? false,
-          });
-        },
-      ),
-      adminShare: data['adminShare'] ?? 0.0,
+      employeePayments: employeePayments,
+      adminShare: (data['adminShare'] as num).toDouble(),
       isDeleted: data['isDeleted'] ?? false,
     );
   }

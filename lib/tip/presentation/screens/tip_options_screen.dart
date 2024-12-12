@@ -40,9 +40,6 @@ class _TipOptionsScreenState extends State<TipOptionsScreen> {
             (employees) => employees.cast<Employee>(),
           ),
     ]).then((data) {
-      print('Datos cargados correctamente.');
-      print('Tips: ${data[0]}');
-      print('Empleados: ${data[1]}');
       return data;
     }).catchError((error) {
       print('Error cargando datos: $error');
@@ -65,7 +62,6 @@ class _TipOptionsScreenState extends State<TipOptionsScreen> {
         future: _dataFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            print('Cargando datos...');
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -82,22 +78,8 @@ class _TipOptionsScreenState extends State<TipOptionsScreen> {
           final List<Tip> tips = snapshot.data![0] as List<Tip>;
           final employees = snapshot.data![1];
 
-          print('Cantidad de Tips cargados: ${tips.length}');
-          print('Cantidad de Empleados cargados: ${employees.length}');
-
           final employeesWithPendingTips =
               _getEmployeesWithPendingTips(tips, employees);
-
-          if (employeesWithPendingTips.isEmpty) {
-            print('Todas las propinas están pagadas.');
-            return const Center(
-              child: Text(
-                'Actualmente están todas las propinas pagadas, no hay pendientes.',
-                style: TextStyle(fontSize: 18),
-                textAlign: TextAlign.center,
-              ),
-            );
-          }
 
           return Padding(
             padding: const EdgeInsets.all(16.0),
@@ -205,13 +187,7 @@ class _TipOptionsScreenState extends State<TipOptionsScreen> {
     final Map<String, double> employeeTotals = {};
 
     for (var tip in tips) {
-      // Debugging: imprimir el ID del tip y sus pagos
-      print('Tip ID: ${tip.id}, Employee Payments: ${tip.employeePayments}');
-
       tip.employeePayments.forEach((employeeId, paymentDetails) {
-        // Debugging: imprimir detalles de cada empleado
-        print('Empleado ID: $employeeId, Detalles del Pago: $paymentDetails');
-
         final cash = (paymentDetails['cash'] as num?)?.toDouble() ?? 0.0;
         final card = (paymentDetails['card'] as num?)?.toDouble() ?? 0.0;
 
@@ -225,10 +201,6 @@ class _TipOptionsScreenState extends State<TipOptionsScreen> {
     final Map<String, String> employeeNames = {
       for (var employee in employees) employee.id: employee.name,
     };
-
-    // Debugging: imprimir los totales calculados
-    print('Totales de propinas por empleado: $employeeTotals');
-    print('Nombres de empleados: $employeeNames');
 
     return employeeTotals.entries
         .map((entry) => {

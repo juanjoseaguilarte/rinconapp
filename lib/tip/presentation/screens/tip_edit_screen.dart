@@ -60,19 +60,33 @@ class _TipEditScreenState extends State<TipEditScreen> {
   }
 
   void _initializeFields() {
-    final cashTip = widget.tip.employeePayments.values.fold<double>(
-      0.0,
-      (sum, payment) => sum + (payment['cash'] ?? 0.0),
-    );
+    // Contar empleados y considerar al Admin
+    final employeeCount = widget.tip.employeePayments.keys.length;
 
-    final cardTip = widget.tip.employeePayments.values.fold<double>(
-      0.0,
-      (sum, payment) => sum + (payment['card'] ?? 0.0),
-    );
+    // Sumar el efectivo y tarjeta de cada empleado
+    final totalCash = widget.tip.employeePayments.values.fold<double>(
+          0.0,
+          (sum, payment) => sum + (payment['cash'] ?? 0.0),
+        ) *
+        (employeeCount + 1) /
+        employeeCount; // Incluir la parte del Admin
 
-    _cashTipController.text = cashTip.toStringAsFixed(2);
-    _cardTipController.text = cardTip.toStringAsFixed(2);
-    _totalTip = cashTip + cardTip;
+    final totalCard = widget.tip.employeePayments.values.fold<double>(
+          0.0,
+          (sum, payment) => sum + (payment['card'] ?? 0.0),
+        ) *
+        (employeeCount + 1) /
+        employeeCount; // Incluir la parte del Admin
+
+    // Calcular el total incluyendo al Admin
+    final totalTip = totalCash + totalCard;
+
+    // Actualizar los controladores y el total
+    _cashTipController.text = totalCash.toStringAsFixed(2);
+    _cardTipController.text = totalCard.toStringAsFixed(2);
+    setState(() {
+      _totalTip = totalTip;
+    });
   }
 
   void _updateTotal() {
@@ -117,8 +131,8 @@ class _TipEditScreenState extends State<TipEditScreen> {
     final employeePayments = {
       for (var employee in _selectedEmployees)
         employee.id: {
-          'cash': cashTip / _selectedEmployees.length,
-          'card': cardTip / _selectedEmployees.length,
+          'cash': cashTip / (_selectedEmployees.length + 1),
+          'card': cardTip / (_selectedEmployees.length + 1),
           'isDeleted': false,
         }
     };
@@ -136,7 +150,7 @@ class _TipEditScreenState extends State<TipEditScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Propina actualizada correctamente')),
       );
-      Navigator.pop(context);
+      Navigator.popUntil(context, (route) => route.isFirst);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error al guardar la propina')),

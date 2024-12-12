@@ -149,6 +149,7 @@ class _TipCreateScreenState extends State<TipCreateScreen> {
 
       // Incluye al "Admin" en la lista de reparto
       final allParticipants = [..._selectedEmployees, admin];
+      print(allParticipants);
       final sharePerPerson =
           (totalTip / allParticipants.length).roundToDouble();
 
@@ -156,11 +157,12 @@ class _TipCreateScreenState extends State<TipCreateScreen> {
       final employeePayments = {
         for (var employee in _selectedEmployees)
           employee.id: {
-            'cash': cashTip / _selectedEmployees.length,
-            'card': cardTip / _selectedEmployees.length,
+            'cash': cashTip / (_selectedEmployees.length + 1),
+            'card': cardTip / (_selectedEmployees.length + 1),
             'isDeleted': false,
           }
       };
+
 
       final tip = Tip(
         amount: totalTip,
@@ -170,7 +172,6 @@ class _TipCreateScreenState extends State<TipCreateScreen> {
         adminShare: sharePerPerson,
       );
 
-      print('Datos enviados a Firestore: ${tip.toMap()}');
       await widget.tipRepository.addTip(tip);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Propina registrada exitosamente')),
