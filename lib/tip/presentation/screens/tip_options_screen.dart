@@ -36,8 +36,18 @@ class _TipOptionsScreenState extends State<TipOptionsScreen> {
   void _loadData() {
     _dataFuture = Future.wait([
       widget.tipRepository.fetchTips(),
-      widget.employeeService.getAllEmployees(),
-    ]);
+      widget.employeeService.getAllEmployees().then(
+            (employees) => employees.cast<Employee>(),
+          ),
+    ]).then((data) {
+      print('Datos cargados correctamente.');
+      print('Tips: ${data[0]}');
+      print('Empleados: ${data[1]}');
+      return data;
+    }).catchError((error) {
+      print('Error cargando datos: $error');
+      throw error;
+    });
   }
 
   @override
@@ -55,18 +65,39 @@ class _TipOptionsScreenState extends State<TipOptionsScreen> {
         future: _dataFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
+            print('Cargando datos...');
             return const Center(child: CircularProgressIndicator());
           }
 
+          if (snapshot.hasError) {
+            print('Error detectado: ${snapshot.error}');
+            return const Center(child: Text('Error en la carga de datos.'));
+          }
+
           if (!snapshot.hasData || snapshot.data is! List) {
-            return const Center(child: Text('Error al cargar datos.'));
+            print('Datos inválidos o no disponibles.');
+            return const Center(child: Text('Error en la carga de datos.'));
           }
 
           final List<Tip> tips = snapshot.data![0] as List<Tip>;
           final employees = snapshot.data![1];
 
+          print('Cantidad de Tips cargados: ${tips.length}');
+          print('Cantidad de Empleados cargados: ${employees.length}');
+
           final employeesWithPendingTips =
               _getEmployeesWithPendingTips(tips, employees);
+
+          if (employeesWithPendingTips.isEmpty) {
+            print('Todas las propinas están pagadas.');
+            return const Center(
+              child: Text(
+                'Actualmente están todas las propinas pagadas, no hay pendientes.',
+                style: TextStyle(fontSize: 18),
+                textAlign: TextAlign.center,
+              ),
+            );
+          }
 
           return Padding(
             padding: const EdgeInsets.all(16.0),
@@ -171,44 +202,40 @@ class _TipOptionsScreenState extends State<TipOptionsScreen> {
 
   List<Map<String, dynamic>> _getEmployeesWithPendingTips(
       List<Tip> tips, List<Employee> employees) {
-    print('Tips recibidos: ${tips.length}');
     final Map<String, double> employeeTotals = {};
 
     for (var tip in tips) {
-      print('Procesando Tip ID: ${tip.id}');
+      // Debugging: imprimir el ID del tip y sus pagos
+      print('Tip ID: ${tip.id}, Employee Payments: ${tip.employeePayments}');
+
       tip.employeePayments.forEach((employeeId, paymentDetails) {
-        print('Empleado ID: $employeeId, Detalles: $paymentDetails');
+        // Debugging: imprimir detalles de cada empleado
+        print('Empleado ID: $employeeId, Detalles del Pago: $paymentDetails');
+
+        final cash = (paymentDetails['cash'] as num?)?.toDouble() ?? 0.0;
+        final card = (paymentDetails['card'] as num?)?.toDouble() ?? 0.0;
+
         if (!(paymentDetails['isDeleted'] ?? false)) {
-          final cash = (paymentDetails['cash'] as num?)?.toDouble() ?? 0.0;
-          final card = (paymentDetails['card'] as num?)?.toDouble() ?? 0.0;
-          final total = cash + card;
-          print(
-              'Empleado $employeeId, Cash: $cash, Card: $card, Total: $total');
           employeeTotals[employeeId] =
-              (employeeTotals[employeeId] ?? 0.0) + total;
+              (employeeTotals[employeeId] ?? 0.0) + cash + card;
         }
       });
     }
-
-    print('Totales calculados: $employeeTotals');
 
     final Map<String, String> employeeNames = {
       for (var employee in employees) employee.id: employee.name,
     };
 
+    // Debugging: imprimir los totales calculados
+    print('Totales de propinas por empleado: $employeeTotals');
     print('Nombres de empleados: $employeeNames');
 
-    final List<Map<String, dynamic>> filteredEmployees = employeeTotals.entries
+    return employeeTotals.entries
         .map((entry) => {
               'id': entry.key,
               'amount': entry.value,
               'name': employeeNames[entry.key] ?? 'Desconocido',
             })
-        .toList();
-
-    print('Empleados filtrados: $filteredEmployees');
-
-    return filteredEmployees
         .where((employee) =>
             employees.any((e) => e.id == employee['id'] && e.role != 'Admin'))
         .toList();
