@@ -50,7 +50,7 @@ class CashMenuScreen extends StatelessWidget {
                       BorderRadius.circular(0), // esquinas no redondeadas
                 ),
               ),
-              child: const Text('Entrada'),
+              child: const Text('Entrada Dinero Caja'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -72,7 +72,7 @@ class CashMenuScreen extends StatelessWidget {
                       BorderRadius.circular(0), // esquinas no redondeadas
                 ),
               ),
-              child: const Text('Salida'),
+              child: const Text('Salida Dinero Caja'),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -124,7 +124,7 @@ class CashMenuScreen extends StatelessWidget {
                       BorderRadius.circular(0), // esquinas no redondeadas
                 ),
               ),
-              child: const Text('Arqueo'),
+              child: const Text('Arqueo Domingo'),
             ),
             if (loggedUser['role'] == 'Admin')
               ElevatedButton(
@@ -149,7 +149,7 @@ class CashMenuScreen extends StatelessWidget {
                         BorderRadius.circular(0), // esquinas no redondeadas
                   ),
                 ),
-                child: const Text('Movimientos'),
+                child: const Text('Listado De Movimientos'),
               ),
             ElevatedButton(
               onPressed: () async {
@@ -170,7 +170,7 @@ class CashMenuScreen extends StatelessWidget {
                       BorderRadius.circular(0), // esquinas no redondeadas
                 ),
               ),
-              child: const Text('Pago Caja Arriba'),
+              child: const Text('Cobro Mesas Cashlogy Bloqueado'),
             ),
           ],
         ),

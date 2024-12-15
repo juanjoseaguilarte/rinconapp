@@ -20,11 +20,14 @@ class _PayScreenState extends State<PayScreen> {
       TextEditingController(text: '0');
   final TextEditingController _customerAmountController =
       TextEditingController(text: '0');
+  final TextEditingController _tableNumberController =
+      TextEditingController(); // Nuevo controlador para el número de la mesa
 
   @override
   void dispose() {
     _billAmountController.dispose();
     _customerAmountController.dispose();
+    _tableNumberController.dispose(); // Liberar el controlador
     super.dispose();
   }
 
@@ -49,6 +52,14 @@ class _PayScreenState extends State<PayScreen> {
     final given = _customerAmount;
     final change = _change;
 
+    // Validar los campos
+    if (_tableNumberController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Debe ingresar el número de la mesa')),
+      );
+      return;
+    }
+
     if (bill <= 0 || given <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Debe ingresar importes válidos')),
@@ -56,8 +67,8 @@ class _PayScreenState extends State<PayScreen> {
       return;
     }
 
-    // Motivo fijo: "pago cuenta mesa"
-    const reason = "pago cuenta mesa";
+    // Motivo fijo con el número de la mesa incluido
+    final reason = "Pago cuenta mesa ${_tableNumberController.text}";
 
     try {
       // Transacción de entrada (el dinero recibido del cliente)
@@ -77,7 +88,7 @@ class _PayScreenState extends State<PayScreen> {
           userName: widget.loggedUser['name'],
           type: 'salida',
           amount: change,
-          reason: "devolución de cambio",
+          reason: "Devolución de cambio",
           date: DateTime.now(),
         );
       }
@@ -101,7 +112,7 @@ class _PayScreenState extends State<PayScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pago'),
+        title: const Text('Cobro Mesa Manual'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -109,6 +120,16 @@ class _PayScreenState extends State<PayScreen> {
           children: [
             Text(
                 'Usuario: ${widget.loggedUser['name']} (${widget.loggedUser['role']})'),
+            const SizedBox(height: 20),
+            // Campo para el número de la mesa
+            TextField(
+              controller: _tableNumberController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Número de la mesa',
+                border: OutlineInputBorder(),
+              ),
+            ),
             const SizedBox(height: 20),
             TextField(
               controller: _billAmountController,

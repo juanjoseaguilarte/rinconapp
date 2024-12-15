@@ -54,6 +54,8 @@ class _CashCountScreenState extends State<CashCountScreen> {
 
   Map<String, TextEditingController> unitControllers = {};
   Map<String, TextEditingController> packControllers = {};
+  Map<String, FocusNode> unitFocusNodes = {};
+  Map<String, FocusNode> packFocusNodes = {};
 
   bool get isAdmin => widget.loggedUser['role'] == 'Admin';
 
@@ -63,6 +65,26 @@ class _CashCountScreenState extends State<CashCountScreen> {
     for (var denom in denominations.keys) {
       final unitController = TextEditingController(text: '0');
       final packController = TextEditingController(text: '0');
+      final unitFocusNode = FocusNode();
+      final packFocusNode = FocusNode();
+
+      // Agregar listeners al FocusNode para unidades
+      unitFocusNode.addListener(() {
+        if (unitFocusNode.hasFocus) {
+          if (unitController.text == '0') unitController.clear();
+        } else {
+          if (unitController.text.isEmpty) unitController.text = '0';
+        }
+      });
+
+      // Agregar listeners al FocusNode para blísteres
+      packFocusNode.addListener(() {
+        if (packFocusNode.hasFocus) {
+          if (packController.text == '0') packController.clear();
+        } else {
+          if (packController.text.isEmpty) packController.text = '0';
+        }
+      });
 
       // Listeners para actualizar total en tiempo real
       unitController.addListener(() {
@@ -74,6 +96,8 @@ class _CashCountScreenState extends State<CashCountScreen> {
 
       unitControllers[denom] = unitController;
       packControllers[denom] = packController;
+      unitFocusNodes[denom] = unitFocusNode;
+      packFocusNodes[denom] = packFocusNode;
     }
   }
 
@@ -84,6 +108,12 @@ class _CashCountScreenState extends State<CashCountScreen> {
     }
     for (var c in packControllers.values) {
       c.dispose();
+    }
+    for (var node in unitFocusNodes.values) {
+      node.dispose();
+    }
+    for (var node in packFocusNodes.values) {
+      node.dispose();
     }
     super.dispose();
   }
@@ -156,7 +186,10 @@ class _CashCountScreenState extends State<CashCountScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MovementsListScreen(transactions: transactions, loggedUser: {},),
+        builder: (context) => MovementsListScreen(
+          transactions: transactions,
+          loggedUser: {},
+        ),
       ),
     );
   }
@@ -168,13 +201,15 @@ class _CashCountScreenState extends State<CashCountScreen> {
       child: Row(
         children: [
           SizedBox(
-              width: 50,
-              child: Text(denom,
-                  style: const TextStyle(fontWeight: FontWeight.bold))),
+            width: 50,
+            child: Text(denom,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
               controller: unitControllers[denom],
+              focusNode: unitFocusNodes[denom],
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
                 labelText: 'Unidades',
@@ -187,6 +222,7 @@ class _CashCountScreenState extends State<CashCountScreen> {
             Expanded(
               child: TextField(
                 controller: packControllers[denom],
+                focusNode: packFocusNodes[denom],
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
                   labelText: 'Blísteres',
@@ -226,9 +262,10 @@ class _CashCountScreenState extends State<CashCountScreen> {
             Text(
               'Contado: ${counted.toStringAsFixed(2)} €',
               style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green),
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.green,
+              ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(

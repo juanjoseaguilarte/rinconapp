@@ -163,7 +163,6 @@ class _TipCreateScreenState extends State<TipCreateScreen> {
           }
       };
 
-
       final tip = Tip(
         amount: totalTip,
         date: _selectedDate,
@@ -256,18 +255,31 @@ class _TipCreateScreenState extends State<TipCreateScreen> {
                     hintText: 'Ingrese monto en efectivo',
                     border: OutlineInputBorder(),
                   ),
+                  onChanged: (value) {
+                    // Reemplaza la coma por un punto al instante
+                    _cashTipController.text = value.replaceAll(',', '.');
+                    _cashTipController.selection = TextSelection.fromPosition(
+                      TextPosition(offset: _cashTipController.text.length),
+                    );
+                  },
                 ),
                 const SizedBox(height: 20),
                 const Text('Propina en Tarjeta de Crédito:',
                     style: TextStyle(fontSize: 16)),
                 TextField(
-                  controller: _cardTipController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    hintText: 'Ingrese monto en tarjeta',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
+                    controller: _cardTipController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      hintText: 'Ingrese monto en tarjeta',
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (value) {
+                      // Reemplaza la coma por un punto al instante
+                      _cardTipController.text = value.replaceAll(',', '.');
+                      _cardTipController.selection = TextSelection.fromPosition(
+                        TextPosition(offset: _cashTipController.text.length),
+                      );
+                    }),
                 const SizedBox(height: 20),
                 const Center(
                   child: Column(
