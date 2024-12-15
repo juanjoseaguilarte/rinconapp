@@ -8,6 +8,7 @@ import 'package:gestion_propinas/employee/application/usecases/get_employee_by_p
 import 'package:gestion_propinas/employee/application/usecases/update_employee.dart';
 import 'package:gestion_propinas/employee/infrastructure/repositories/firebase_employee_adapter.dart';
 import 'package:gestion_propinas/firebase_options.dart';
+import 'package:gestion_propinas/share/services/print_service.dart';
 import 'package:gestion_propinas/tip/application/services/tip_service.dart';
 import 'package:gestion_propinas/tip/application/usecases/add_tip.dart';
 import 'package:gestion_propinas/tip/application/usecases/delete_tip.dart';
@@ -21,6 +22,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  final printerService = PrinterService(printerIp: '192.168.1.100');
 
   // Inicialización de repositorios
   final employeeRepository = FirebaseEmployeeAdapter();
@@ -47,6 +50,7 @@ void main() async {
     employeeService: employeeService,
     tipService: tipService,
     tipRepository: tipRepository, // Pasa el repositorio aquí
+    prinService: printerService,
   ));
 }
 
@@ -59,7 +63,8 @@ class MyApp extends StatelessWidget {
     Key? key,
     required this.employeeService,
     required this.tipService,
-    required this.tipRepository,
+    required this.tipRepository, 
+    required PrinterService prinService,
   }) : super(key: key);
 
   @override

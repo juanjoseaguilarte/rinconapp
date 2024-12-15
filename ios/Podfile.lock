@@ -1151,6 +1151,8 @@ PODS:
   - BoringSSL-GRPC/Implementation (0.0.36):
     - BoringSSL-GRPC/Interface (= 0.0.36)
   - BoringSSL-GRPC/Interface (0.0.36)
+  - charset_converter (0.0.1):
+    - Flutter
   - cloud_firestore (5.4.5):
     - Firebase/Firestore (= 11.4.0)
     - firebase_core
@@ -1303,6 +1305,7 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - charset_converter (from `.symlinks/plugins/charset_converter/ios`)
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - Flutter (from `Flutter`)
@@ -1327,6 +1330,8 @@ SPEC REPOS:
     - nanopb
 
 EXTERNAL SOURCES:
+  charset_converter:
+    :path: ".symlinks/plugins/charset_converter/ios"
   cloud_firestore:
     :path: ".symlinks/plugins/cloud_firestore/ios"
   firebase_core:
@@ -1339,6 +1344,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   abseil: d121da9ef7e2ff4cab7666e76c5a3e0915ae08c3
   BoringSSL-GRPC: ca6a8e5d04812fce8ffd6437810c2d46f925eaeb
+  charset_converter: 215c7b04932ec2b9ba43be96a9bc34afed3e5322
   cloud_firestore: 6bae2db322e02f737234a0ce847ddaf18d5012b6
   Firebase: cf1b19f21410b029b6786a54e9764a0cacad3c99
   firebase_core: f8c5b220a8f9c436fdbd075ae321cef3d96ef181

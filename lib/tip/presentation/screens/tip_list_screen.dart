@@ -63,7 +63,7 @@ class _TipListScreenState extends State<TipListScreen> {
                     'Fecha: ${tip.date.day}/${tip.date.month}/${tip.date.year}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  subtitle: Text('Total: €${tip.amount.toStringAsFixed(2)}'),
+                  subtitle: Text('Total: ${tip.amount.toStringAsFixed(2)} €'),
                   trailing: IconButton(
                     icon: const Icon(Icons.edit),
                     onPressed: () {

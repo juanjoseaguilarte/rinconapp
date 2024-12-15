@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:gestion_propinas/cash/presentation/screens/cash_menu_screen.dart';
 import 'package:gestion_propinas/employee/application/services/employee_service.dart';
@@ -7,6 +6,8 @@ import 'package:gestion_propinas/admin/presentation/screens/admin_screen.dart';
 import 'package:gestion_propinas/tip/domain/repositories/tip_repository.dart';
 import 'package:gestion_propinas/tip/presentation/screens/tip_options_screen.dart';
 import 'package:gestion_propinas/employee/presentation/screens/employee_screen.dart';
+import 'package:esc_pos_printer/esc_pos_printer.dart';
+import 'package:esc_pos_utils/esc_pos_utils.dart';
 
 class HomeScreen extends StatefulWidget {
   final EmployeeService employeeService;
@@ -46,6 +47,36 @@ class _HomeScreenState extends State<HomeScreen> {
           .map((e) => {'id': e.id, 'name': e.name, 'role': e.role})
           .toList();
     });
+  }
+
+  void _printTest() async {
+    try {
+      final profile = await CapabilityProfile.load();
+      final printer = NetworkPrinter(PaperSize.mm80, profile);
+
+      final PosPrintResult res =
+          await printer.connect('192.168.1.100', port: 9100);
+
+      if (res == PosPrintResult.success) {
+        printer.text('Hola, esta es una prueba de impresión',
+            styles: PosStyles(align: PosAlign.center));
+        printer.feed(2); // Alimentar 2 líneas
+        printer.cut();
+        printer.disconnect();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Impresión completada con éxito')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al conectar: ${res.msg}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al imprimir: $e')),
+      );
+    }
   }
 
   void _startLogoutTimer() {
@@ -111,16 +142,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildEmployeeSelection() {
     return Wrap(
-      spacing: 10, // Espaciado horizontal entre elementos
-      runSpacing: 10, // Espaciado vertical entre filas
+      spacing: 10,
+      runSpacing: 10,
       children: _employees.map((user) {
         return GestureDetector(
           onTap: () => _showPinDialog(user),
           child: Container(
-            width: 80, // Ancho fijo
-            height: 80, // Alto fijo igual al ancho para formar un cuadrado
+            width: 80,
+            height: 80,
             margin: const EdgeInsets.symmetric(vertical: 8),
-
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.grey[300],
@@ -202,7 +232,6 @@ class _HomeScreenState extends State<HomeScreen> {
               child: const Text('Propinas'),
             ),
             const SizedBox(height: 20),
-            // Ahora el botón "Arqueo Caja" lleva a la pantalla de CashAdminScreen
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -216,9 +245,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: const Text('Caja'),
             ),
             const SizedBox(height: 20),
-            // Y el botón "Empleados" lleva a la pantalla de EmployeeScreen
             ElevatedButton(
-              onPressed: _loggedInUser!['role'] == 'Admin' || _loggedInUser!['role'] == 'Encargado'
+              onPressed: _loggedInUser!['role'] == 'Admin' ||
+                      _loggedInUser!['role'] == 'Encargado'
                   ? () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -229,6 +258,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   : null,
               child: const Text('Empleados'),
             ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _printTest,
+              child: const Text('Test de Impresión'),
+            ),
           ],
         ),
       ),
@@ -238,6 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _logoutTimer?.cancel();
+    _pinController.dispose();
     super.dispose();
   }
 }
