@@ -9,6 +9,11 @@ import 'package:gestion_propinas/employee/application/usecases/update_employee.d
 import 'package:gestion_propinas/employee/infrastructure/repositories/firebase_employee_adapter.dart';
 import 'package:gestion_propinas/firebase_options.dart';
 import 'package:gestion_propinas/share/services/print_service.dart';
+import 'package:gestion_propinas/task/application/services/task_service.dart';
+import 'package:gestion_propinas/task/application/usecases/add_task_usecase.dart';
+import 'package:gestion_propinas/task/application/usecases/get_user_task_usecase.dart';
+import 'package:gestion_propinas/task/application/usecases/update_task_usecase.dart';
+import 'package:gestion_propinas/task/infrastructure/repositories/firestore_task_repository.dart';
 import 'package:gestion_propinas/tip/application/services/tip_service.dart';
 import 'package:gestion_propinas/tip/application/usecases/add_tip.dart';
 import 'package:gestion_propinas/tip/application/usecases/delete_tip.dart';
@@ -28,6 +33,8 @@ void main() async {
   // Inicialización de repositorios
   final employeeRepository = FirebaseEmployeeAdapter();
   final tipRepository = FirebaseTipAdapter(); // Aquí se inicializa
+  final taskRepository = FirebaseTaskRepository();
+
 
   // Inicialización de casos de uso para Empleados
   final employeeService = EmployeeService(
@@ -46,11 +53,19 @@ void main() async {
     deleteTipUseCase: DeleteTip(tipRepository),
   );
 
+  // Casos de uso para tareas
+  final taskService = TaskService(
+    getUserTasksUseCase: GetUserTasks(taskRepository),
+    updateTaskStatusUseCase: UpdateTaskStatus(taskRepository),
+    addTaskUseCase: AddTask(taskRepository),
+  );
+
   runApp(MyApp(
     employeeService: employeeService,
     tipService: tipService,
     tipRepository: tipRepository, // Pasa el repositorio aquí
     prinService: printerService,
+    taskService: taskService,
   ));
 }
 
@@ -58,13 +73,15 @@ class MyApp extends StatelessWidget {
   final EmployeeService employeeService;
   final TipService tipService;
   final FirebaseTipAdapter tipRepository;
+  final TaskService taskService;
 
   const MyApp({
     Key? key,
     required this.employeeService,
     required this.tipService,
-    required this.tipRepository, 
+    required this.tipRepository,
     required PrinterService prinService,
+    required this.taskService,
   }) : super(key: key);
 
   @override
@@ -78,6 +95,7 @@ class MyApp extends StatelessWidget {
       home: HomeScreen(
         employeeService: employeeService,
         tipRepository: tipRepository,
+        taskService: taskService,
       ),
     );
   }

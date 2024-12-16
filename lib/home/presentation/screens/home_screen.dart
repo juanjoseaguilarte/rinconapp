@@ -1,22 +1,27 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:gestion_propinas/cash/presentation/screens/cash_menu_screen.dart';
 import 'package:gestion_propinas/employee/application/services/employee_service.dart';
 import 'package:gestion_propinas/admin/presentation/screens/admin_screen.dart';
+import 'package:gestion_propinas/task/application/services/task_service.dart';
+import 'package:gestion_propinas/task/presentation/screens/add_task_screen.dart';
+import 'package:gestion_propinas/task/presentation/screens/task_screen.dart'; // Importar TaskScreen
 import 'package:gestion_propinas/tip/domain/repositories/tip_repository.dart';
 import 'package:gestion_propinas/tip/presentation/screens/tip_options_screen.dart';
-import 'package:gestion_propinas/employee/presentation/screens/employee_screen.dart';
 import 'package:esc_pos_printer/esc_pos_printer.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 
 class HomeScreen extends StatefulWidget {
   final EmployeeService employeeService;
   final TipRepository tipRepository;
+  final TaskService taskService;
 
   const HomeScreen({
     Key? key,
     required this.employeeService,
     required this.tipRepository,
+    required this.taskService,
   }) : super(key: key);
 
   @override
@@ -246,22 +251,36 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _loggedInUser!['role'] == 'Admin' ||
-                      _loggedInUser!['role'] == 'Encargado'
-                  ? () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EmployeeScreen(
-                          employeeService: employeeService,
-                        ),
-                      ))
-                  : null,
-              child: const Text('Empleados'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TaskScreen(
+                      userId: _loggedInUser!['id'],
+                      getUserTasks: widget.taskService
+                          .getTasksForUser, // Pasa la función correcta
+                      updateTaskStatus: widget.taskService
+                          .updateTaskStatus, // Pasa la función correcta
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Tareas'),
             ),
-            const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _printTest,
-              child: const Text('Test de Impresión'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddTaskScreen(
+                      addTask: widget.taskService.addTask,
+                      fetchEmployees:
+                          employeeService.getAllEmployees, // Nueva función
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Agregar Tarea'),
             ),
           ],
         ),
