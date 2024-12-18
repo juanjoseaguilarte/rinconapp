@@ -1,16 +1,13 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:gestion_propinas/cash/presentation/screens/cash_menu_screen.dart';
 import 'package:gestion_propinas/employee/application/services/employee_service.dart';
-import 'package:gestion_propinas/admin/presentation/screens/admin_screen.dart';
 import 'package:gestion_propinas/task/application/services/task_service.dart';
-import 'package:gestion_propinas/task/presentation/screens/add_task_screen.dart';
-import 'package:gestion_propinas/task/presentation/screens/task_screen.dart'; // Importar TaskScreen
 import 'package:gestion_propinas/tip/domain/repositories/tip_repository.dart';
+import 'package:gestion_propinas/cash/presentation/screens/cash_menu_screen.dart';
+import 'package:gestion_propinas/admin/presentation/screens/admin_screen.dart';
+import 'package:gestion_propinas/task/presentation/screens/add_task_screen.dart';
+import 'package:gestion_propinas/task/presentation/screens/task_screen.dart';
 import 'package:gestion_propinas/tip/presentation/screens/tip_options_screen.dart';
-import 'package:esc_pos_printer/esc_pos_printer.dart';
-import 'package:esc_pos_utils/esc_pos_utils.dart';
 
 class HomeScreen extends StatefulWidget {
   final EmployeeService employeeService;
@@ -18,11 +15,11 @@ class HomeScreen extends StatefulWidget {
   final TaskService taskService;
 
   const HomeScreen({
-    Key? key,
+    super.key,
     required this.employeeService,
     required this.tipRepository,
     required this.taskService,
-  }) : super(key: key);
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -30,74 +27,39 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _pinController = TextEditingController();
-  late final EmployeeService employeeService;
-  late final TipRepository tipRepository;
-
   List<Map<String, dynamic>> _employees = [];
   Map<String, dynamic>? _loggedInUser;
   Timer? _logoutTimer;
+  Map<String, int> _pendingTasks = {};
 
   @override
   void initState() {
     super.initState();
-    employeeService = widget.employeeService;
-    tipRepository = widget.tipRepository;
     _loadEmployees();
   }
 
   Future<void> _loadEmployees() async {
-    final employees = await employeeService.getAllEmployees();
+    final employees = await widget.employeeService.getAllEmployees();
+
+    // Obtener tareas pendientes de cada empleado
+    final Map<String, int> pendingTasks = {};
+    for (var employee in employees) {
+      final tasks = await widget.taskService.getTasksForUser(employee.id);
+      final pending = tasks
+          .where((task) => !(task.assignedToStatus[employee.id] ?? false))
+          .length;
+      pendingTasks[employee.id] = pending;
+    }
+
     setState(() {
       _employees = employees
           .map((e) => {'id': e.id, 'name': e.name, 'role': e.role})
           .toList();
-    });
-  }
-
-  void _printTest() async {
-    try {
-      final profile = await CapabilityProfile.load();
-      final printer = NetworkPrinter(PaperSize.mm80, profile);
-
-      final PosPrintResult res =
-          await printer.connect('192.168.1.100', port: 9100);
-
-      if (res == PosPrintResult.success) {
-        printer.text('Hola, esta es una prueba de impresión',
-            styles: PosStyles(align: PosAlign.center));
-        printer.feed(2); // Alimentar 2 líneas
-        printer.cut();
-        printer.disconnect();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Impresión completada con éxito')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al conectar: ${res.msg}')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al imprimir: $e')),
-      );
-    }
-  }
-
-  void _startLogoutTimer() {
-    _logoutTimer?.cancel();
-    _logoutTimer = Timer(const Duration(seconds: 15), () {
-      setState(() {
-        _loggedInUser = null;
-      });
+      _pendingTasks = pendingTasks;
     });
   }
 
   Future<void> _showPinDialog(Map<String, dynamic> user) async {
-    setState(() {
-      _loggedInUser = null;
-    });
-
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -119,10 +81,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ElevatedButton(
             onPressed: () async {
               final pin = int.tryParse(_pinController.text) ?? -1;
-              final isValid = await _authenticateUser(user['id'], pin);
+              final isValid =
+                  await widget.employeeService.getEmployeeByPin(pin);
               Navigator.of(context).pop();
               _pinController.clear();
-              if (isValid) {
+              if (isValid != null && isValid.id == user['id']) {
                 setState(() {
                   _loggedInUser = user;
                 });
@@ -140,9 +103,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<bool> _authenticateUser(String userId, int pin) async {
-    final employee = await employeeService.getEmployeeByPin(pin);
-    return employee != null && employee.id == userId;
+  void _startLogoutTimer() {
+    _logoutTimer?.cancel();
+    _logoutTimer = Timer(const Duration(seconds: 15), () {
+      setState(() {
+        _loggedInUser = null;
+      });
+    });
   }
 
   Widget _buildEmployeeSelection() {
@@ -150,24 +117,50 @@ class _HomeScreenState extends State<HomeScreen> {
       spacing: 10,
       runSpacing: 10,
       children: _employees.map((user) {
+        final pendingTasksCount = _pendingTasks[user['id']] ?? 0;
+
         return GestureDetector(
           onTap: () => _showPinDialog(user),
-          child: Container(
-            width: 80,
-            height: 80,
-            margin: const EdgeInsets.symmetric(vertical: 8),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey, width: 1),
-            ),
-            child: Center(
-              child: Text(
-                user['name'],
-                style: const TextStyle(fontSize: 14),
+          child: Stack(
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey, width: 1),
+                ),
+                child: Center(
+                  child: Text(
+                    user['name'],
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
               ),
-            ),
+              if (pendingTasksCount > 0)
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '$pendingTasksCount',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
         );
       }).toList(),
@@ -220,15 +213,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   : null,
               child: const Text('Configuración'),
             ),
-            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => TipOptionsScreen(
-                      employeeService: employeeService,
-                      tipRepository: tipRepository,
+                      employeeService: widget.employeeService,
+                      tipRepository: widget.tipRepository,
                       loggedUser: _loggedInUser!,
                     ),
                   ),
@@ -236,7 +228,6 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               child: const Text('Propinas'),
             ),
-            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -249,7 +240,6 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               child: const Text('Caja'),
             ),
-            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -257,10 +247,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   MaterialPageRoute(
                     builder: (context) => TaskScreen(
                       userId: _loggedInUser!['id'],
-                      getUserTasks: widget.taskService
-                          .getTasksForUser, // Pasa la función correcta
-                      updateTaskStatus: widget.taskService
-                          .updateTaskStatus, // Pasa la función correcta
+                      getUserTasks: widget.taskService.getTasksForUser,
+                      updateTaskStatus: widget.taskService.updateTaskStatus,
                     ),
                   ),
                 );
@@ -268,18 +256,19 @@ class _HomeScreenState extends State<HomeScreen> {
               child: const Text('Tareas'),
             ),
             ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddTaskScreen(
-                      addTask: widget.taskService.addTask,
-                      fetchEmployees:
-                          employeeService.getAllEmployees, // Nueva función
-                    ),
-                  ),
-                );
-              },
+              onPressed: _loggedInUser!['role'] == 'Admin' ||
+                      _loggedInUser!['role'] == 'Encargado'
+                  ? () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddTaskScreen(
+                            addTask: widget.taskService.addTask,
+                            fetchEmployees:
+                                widget.employeeService.getAllEmployees,
+                          ),
+                        ),
+                      )
+                  : null,
               child: const Text('Agregar Tarea'),
             ),
           ],

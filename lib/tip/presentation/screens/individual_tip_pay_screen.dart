@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_propinas/employee/application/services/employee_service.dart';
-import 'package:gestion_propinas/tip/domain/entities/tip.dart';
 import 'package:gestion_propinas/tip/domain/repositories/tip_repository.dart';
 
 class IndividualTipPayScreen extends StatelessWidget {

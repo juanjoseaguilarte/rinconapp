@@ -8,10 +8,10 @@ class TipAdminScreen extends StatefulWidget {
   final EmployeeService employeeService;
 
   const TipAdminScreen({
-    Key? key,
+    super.key,
     required this.tipRepository,
     required this.employeeService,
-  }) : super(key: key);
+  });
 
   @override
   _TipAdminScreenState createState() => _TipAdminScreenState();

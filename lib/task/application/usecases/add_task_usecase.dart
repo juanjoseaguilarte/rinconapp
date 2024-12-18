@@ -6,14 +6,21 @@ class AddTask {
 
   AddTask(this.taskRepository);
 
-  Future<void> call(String userId, String title, String description) async {
+  Future<void> call(
+      List<String> userIds, String title, String description) async {
+    final Map<String, bool> assignedToStatus = {
+      for (var userId in userIds) userId: false, // Inicializar estados en false
+    };
+
     final task = Task(
-      id: DateTime.now().millisecondsSinceEpoch.toString(), // Generar ID único
-      userId: userId,
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: title,
       description: description,
-      isCompleted: false, // Por defecto no está completada
+      assignedTo: userIds,
+      assignedToStatus: assignedToStatus,
+      createdAt: DateTime.now(),
     );
+
     await taskRepository.addTask(task);
   }
 }

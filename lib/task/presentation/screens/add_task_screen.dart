@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:gestion_propinas/employee/domain/entities/employee.dart';
 
 class AddTaskScreen extends StatefulWidget {
-  final Future<void> Function(String userId, String title, String description)
-      addTask;
-  final Future<List<Employee>> Function()
-      fetchEmployees; // Nueva función para obtener empleados
+  final Future<void> Function(
+      List<String> userIds, String title, String description) addTask;
+  final Future<List<Employee>> Function() fetchEmployees;
 
   const AddTaskScreen({
     Key? key,
@@ -21,7 +20,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   List<Employee> employees = [];
-  Employee? selectedEmployee;
+  List<String> selectedEmployeeIds =
+      []; // Lista de IDs de empleados seleccionados
 
   @override
   void initState() {
@@ -45,27 +45,42 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            DropdownButton<Employee>(
-              hint: const Text('Selecciona un empleado'),
-              value: selectedEmployee,
-              items: employees.map((employee) {
-                return DropdownMenuItem<Employee>(
-                  value: employee,
-                  child: Text(employee.name),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedEmployee = value;
-                });
-              },
+            const Text(
+              'Selecciona empleados:',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
+            Expanded(
+              child: ListView.builder(
+                itemCount: employees.length,
+                itemBuilder: (context, index) {
+                  final employee = employees[index];
+                  final isSelected = selectedEmployeeIds.contains(employee.id);
+
+                  return ListTile(
+                    title: Text(employee.name),
+                    leading: Checkbox(
+                      value: isSelected,
+                      onChanged: (isChecked) {
+                        setState(() {
+                          if (isChecked ?? false) {
+                            selectedEmployeeIds.add(employee.id);
+                          } else {
+                            selectedEmployeeIds.remove(employee.id);
+                          }
+                        });
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 10),
             TextField(
               controller: titleController,
               decoration: const InputDecoration(labelText: 'Título'),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             TextField(
               controller: descriptionController,
               decoration: const InputDecoration(labelText: 'Descripción'),
@@ -74,11 +89,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                if (selectedEmployee != null &&
+                if (selectedEmployeeIds.isNotEmpty &&
                     titleController.text.isNotEmpty &&
                     descriptionController.text.isNotEmpty) {
                   await widget.addTask(
-                    selectedEmployee!.id,
+                    selectedEmployeeIds,
                     titleController.text,
                     descriptionController.text,
                   );

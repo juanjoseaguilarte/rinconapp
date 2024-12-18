@@ -18,11 +18,12 @@ class TaskService {
     return getUserTasksUseCase(userId);
   }
 
-  Future<void> updateTaskStatus(String taskId, bool isCompleted) {
-    return updateTaskStatusUseCase(taskId, isCompleted);
+  Future<void> updateTaskStatus(
+      String taskId, String userId, bool isCompleted) {
+    return updateTaskStatusUseCase(taskId, userId, isCompleted);
   }
 
-  Future<void> addTask(String userId, String title, String description) {
+  Future<void> addTask(List<String> userId, String title, String description) {
     return addTaskUseCase(userId, title, description);
   }
 }

@@ -4,7 +4,7 @@ import 'package:gestion_propinas/task/domain/entities/task.dart';
 class TaskScreen extends StatefulWidget {
   final String userId;
   final Future<List<Task>> Function(String) getUserTasks;
-  final Future<void> Function(String, bool) updateTaskStatus;
+  final Future<void> Function(String, String, bool) updateTaskStatus;
 
   const TaskScreen({
     Key? key,
@@ -33,11 +33,12 @@ class _TaskScreenState extends State<TaskScreen> {
   }
 
   Future<void> _toggleTaskCompletion(Task task) async {
+    final currentStatus = task.assignedToStatus[widget.userId] ?? false;
+
     try {
-      await widget.updateTaskStatus(task.id, !task.isCompleted);
-      _loadTasks(); // Refresca la lista de tareas después de actualizar
+      await widget.updateTaskStatus(task.id, widget.userId, !currentStatus);
+      _loadTasks(); // Recargar tareas después de actualizar
     } catch (e) {
-      // Muestra un mensaje de error si algo falla
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al actualizar tarea: $e')),
       );
@@ -68,6 +69,8 @@ class _TaskScreenState extends State<TaskScreen> {
             itemCount: tasks.length,
             itemBuilder: (context, index) {
               final task = tasks[index];
+              final isCompleted = task.assignedToStatus[widget.userId] ?? false;
+
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                 elevation: 3,
@@ -99,16 +102,15 @@ class _TaskScreenState extends State<TaskScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            task.isCompleted ? 'Completada' : 'Pendiente',
+                            isCompleted ? 'Completada' : 'Pendiente',
                             style: TextStyle(
                               fontSize: 14,
-                              color:
-                                  task.isCompleted ? Colors.green : Colors.red,
+                              color: isCompleted ? Colors.green : Colors.red,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Switch(
-                            value: task.isCompleted,
+                            value: isCompleted,
                             onChanged: (_) => _toggleTaskCompletion(task),
                             activeColor: Colors.green,
                           ),

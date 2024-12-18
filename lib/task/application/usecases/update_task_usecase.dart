@@ -1,11 +1,11 @@
-import 'package:gestion_propinas/task/infrastructure/repositories/firestore_task_repository.dart';
+import 'package:gestion_propinas/task/domain/repositories/task_repository.dart';
 
 class UpdateTaskStatus {
-  final FirebaseTaskRepository repository;
+  final TaskRepository taskRepository;
 
-  UpdateTaskStatus(this.repository);
+  UpdateTaskStatus(this.taskRepository);
 
-  Future<void> call(String taskId, bool isCompleted) {
-    return repository.updateTaskStatus(taskId, isCompleted);
+  Future<void> call(String taskId, String userId, bool isCompleted) {
+    return taskRepository.updateTaskStatus(taskId, userId, isCompleted);
   }
 }

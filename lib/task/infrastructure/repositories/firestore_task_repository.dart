@@ -7,23 +7,24 @@ class FirebaseTaskRepository implements TaskRepository {
 
   @override
   Future<void> addTask(Task task) async {
-    await _firestore.collection('tasks').add(task.toMap());
+    await _firestore.collection('tasks').doc(task.id).set(task.toMap());
   }
 
   @override
   Future<List<Task>> getUserTasks(String userId) async {
     final snapshot = await _firestore
         .collection('tasks')
-        .where('userId', isEqualTo: userId)
+        .where('assignedTo', arrayContains: userId)
         .get();
     return snapshot.docs.map((doc) => Task.fromMap(doc.data())).toList();
   }
 
   @override
-  Future<void> updateTaskStatus(String taskId, bool isCompleted) async {
-    await _firestore
-        .collection('tasks')
-        .doc(taskId)
-        .update({'isCompleted': !isCompleted});
+  Future<void> updateTaskStatus(
+      String taskId, String userId, bool isCompleted) async {
+    final taskRef = _firestore.collection('tasks').doc(taskId);
+    await taskRef.update({
+      'assignedToStatus.$userId': isCompleted,
+    });
   }
 }
