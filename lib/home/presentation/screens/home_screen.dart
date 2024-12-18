@@ -271,6 +271,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   : null,
               child: const Text('Agregar Tarea'),
             ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _printTest,
+              child: const Text('Test de Impresión'),
+            ),
           ],
         ),
       ),
