@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:esc_pos_printer/esc_pos_printer.dart';
+import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:gestion_propinas/employee/application/services/employee_service.dart';
 import 'package:gestion_propinas/task/application/services/task_service.dart';
@@ -57,6 +59,36 @@ class _HomeScreenState extends State<HomeScreen> {
           .toList();
       _pendingTasks = pendingTasks;
     });
+  }
+
+  void _printTest() async {
+    try {
+      final profile = await CapabilityProfile.load();
+      final printer = NetworkPrinter(PaperSize.mm80, profile);
+
+      final PosPrintResult res =
+          await printer.connect('192.168.1.100', port: 9100);
+
+      if (res == PosPrintResult.success) {
+        printer.text('Hola, esta es una prueba de impresión',
+            styles: PosStyles(align: PosAlign.center));
+        printer.feed(2); // Alimentar 2 líneas
+        printer.cut();
+        printer.disconnect();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Impresión completada con éxito')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al conectar: ${res.msg}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al imprimir: $e')),
+      );
+    }
   }
 
   Future<void> _showPinDialog(Map<String, dynamic> user) async {
