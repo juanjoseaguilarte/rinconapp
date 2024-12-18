@@ -45,9 +45,9 @@ class _CashCountScreenState extends State<CashCountScreen> {
     '1c': 50,
     '2c': 50,
     '5c': 50,
-    '10c': 50,
-    '20c': 50,
-    '50c': 50,
+    '10c': 40,
+    '20c': 40,
+    '50c': 40,
     '1€': 25,
     '2€': 25
   };
