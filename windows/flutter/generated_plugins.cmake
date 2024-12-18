@@ -6,7 +6,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   charset_converter
   cloud_firestore
   firebase_core
-  printing
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
