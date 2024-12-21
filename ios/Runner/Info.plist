@@ -45,5 +45,12 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<key>NSPhotoLibraryUsageDescription</key>
+		<string>Necesitamos acceso a tu galería para seleccionar imágenes.</string>
+	<key>NSCameraUsageDescription</key>
+		<string>Necesitamos acceso a tu cámara para tomar fotos.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Necesitamos acceso a tu micrófono para grabar videos.</string>
 </dict>
 </plist>
