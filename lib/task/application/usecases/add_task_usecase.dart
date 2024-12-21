@@ -9,7 +9,7 @@ class AddTask {
   Future<void> call(
       List<String> userIds, String title, String description) async {
     final Map<String, bool> assignedToStatus = {
-      for (var userId in userIds) userId: false, // Inicializar estados en false
+      for (var userId in userIds) userId: false,
     };
 
     final task = Task(

@@ -19,6 +19,7 @@ class TaskScreen extends StatefulWidget {
 
 class _TaskScreenState extends State<TaskScreen> {
   late Future<List<Task>> _tasks;
+  String _selectedFilter = "Pendientes"; // Filtro por defecto
 
   @override
   void initState() {
@@ -48,7 +49,41 @@ class _TaskScreenState extends State<TaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Mis Tareas')),
+      appBar: AppBar(
+        title: const Text('Mis Tareas'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedFilter = "Pendientes";
+                    });
+                  },
+                  child: _buildBadge(
+                    "Pendientes",
+                    _selectedFilter == "Pendientes",
+                  ),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedFilter = "Completadas";
+                    });
+                  },
+                  child: _buildBadge(
+                    "Completadas",
+                    _selectedFilter == "Completadas",
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
       body: FutureBuilder<List<Task>>(
         future: _tasks,
         builder: (context, snapshot) {
@@ -61,14 +96,22 @@ class _TaskScreenState extends State<TaskScreen> {
           }
 
           final tasks = snapshot.data ?? [];
-          if (tasks.isEmpty) {
-            return const Center(child: Text('No tienes tareas asignadas.'));
+
+          // Filtrar las tareas según el filtro seleccionado
+          final filteredTasks = tasks.where((task) {
+            final isCompleted = task.assignedToStatus[widget.userId] ?? false;
+            return _selectedFilter == "Pendientes" ? !isCompleted : isCompleted;
+          }).toList()
+            ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+          if (filteredTasks.isEmpty) {
+            return const Center(child: Text('No hay tareas para mostrar.'));
           }
 
           return ListView.builder(
-            itemCount: tasks.length,
+            itemCount: filteredTasks.length,
             itemBuilder: (context, index) {
-              final task = tasks[index];
+              final task = filteredTasks[index];
               final isCompleted = task.assignedToStatus[widget.userId] ?? false;
 
               return Card(
@@ -123,6 +166,23 @@ class _TaskScreenState extends State<TaskScreen> {
             },
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildBadge(String label, bool isActive) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: isActive ? Colors.blue : Colors.grey[300],
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: isActive ? Colors.white : Colors.black,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }

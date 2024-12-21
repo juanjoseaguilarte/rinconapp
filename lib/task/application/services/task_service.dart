@@ -23,7 +23,8 @@ class TaskService {
     return updateTaskStatusUseCase(taskId, userId, isCompleted);
   }
 
-  Future<void> addTask(List<String> userId, String title, String description) {
-    return addTaskUseCase(userId, title, description);
+  Future<void> addTask(
+      List<String> userIds, String title, String description) {
+    return addTaskUseCase(userIds, title, description);
   }
 }

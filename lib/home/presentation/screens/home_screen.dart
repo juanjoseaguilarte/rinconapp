@@ -32,12 +32,17 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _employees = [];
   Map<String, dynamic>? _loggedInUser;
   Timer? _logoutTimer;
+  Timer? _refreshTimer;
   Map<String, int> _pendingTasks = {};
 
   @override
   void initState() {
     super.initState();
     _loadEmployees();
+
+    _refreshTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
+      _loadEmployees();
+    });
   }
 
   Future<void> _loadEmployees() async {
@@ -60,7 +65,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _pendingTasks = pendingTasks;
     });
   }
-
 
   void _printTest() async {
     try {
@@ -246,6 +250,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   : null,
               child: const Text('Configuración'),
             ),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -261,6 +266,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               child: const Text('Propinas'),
             ),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -273,6 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               child: const Text('Caja'),
             ),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -288,20 +295,22 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               child: const Text('Tareas'),
             ),
+            const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _loggedInUser!['role'] == 'Admin' ||
-                      _loggedInUser!['role'] == 'Encargado'
-                  ? () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AddTaskScreen(
-                            addTask: widget.taskService.addTask,
-                            fetchEmployees:
-                                widget.employeeService.getAllEmployees,
-                          ),
-                        ),
-                      )
-                  : null,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddTaskScreen(
+                      addTask: (userIds, title, description) {
+                        return widget.taskService
+                            .addTask(userIds, title, description);
+                      },
+                      fetchEmployees: widget.employeeService.getAllEmployees,
+                    ),
+                  ),
+                );
+              },
               child: const Text('Agregar Tarea'),
             ),
             const SizedBox(height: 20),

@@ -20,8 +20,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   List<Employee> employees = [];
-  List<String> selectedEmployeeIds =
-      []; // Lista de IDs de empleados seleccionados
+  List<String> selectedEmployeeIds = [];
 
   @override
   void initState() {

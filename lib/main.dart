@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart'; // Importar Provider para AppState
 import 'package:gestion_propinas/employee/application/services/employee_service.dart';
 import 'package:gestion_propinas/employee/application/usecases/add_employee.dart';
 import 'package:gestion_propinas/employee/application/usecases/delete_employee.dart';
@@ -21,6 +22,7 @@ import 'package:gestion_propinas/tip/application/usecases/fetch_tips.dart';
 import 'package:gestion_propinas/tip/application/usecases/update_tip.dart';
 import 'package:gestion_propinas/tip/infrastucture/repositories/firebase_tip_adapter.dart';
 import 'package:gestion_propinas/home/presentation/screens/home_screen.dart';
+import 'package:gestion_propinas/share/app_state.dart'; // Importar AppState
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,9 +34,8 @@ void main() async {
 
   // Inicialización de repositorios
   final employeeRepository = FirebaseEmployeeAdapter();
-  final tipRepository = FirebaseTipAdapter(); // Aquí se inicializa
+  final tipRepository = FirebaseTipAdapter();
   final taskRepository = FirebaseTaskRepository();
-
 
   // Inicialización de casos de uso para Empleados
   final employeeService = EmployeeService(
@@ -60,13 +61,18 @@ void main() async {
     addTaskUseCase: AddTask(taskRepository),
   );
 
-  runApp(MyApp(
-    employeeService: employeeService,
-    tipService: tipService,
-    tipRepository: tipRepository, // Pasa el repositorio aquí
-    prinService: printerService,
-    taskService: taskService,
-  ));
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => AppState(), // Proveer el estado global
+      child: MyApp(
+        employeeService: employeeService,
+        tipService: tipService,
+        tipRepository: tipRepository,
+        prinService: printerService,
+        taskService: taskService,
+      ),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

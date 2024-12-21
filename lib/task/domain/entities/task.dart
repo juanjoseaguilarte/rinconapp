@@ -28,14 +28,14 @@ class Task {
 
   factory Task.fromMap(Map<String, dynamic> map) {
     return Task(
-      id: map['id'] as String? ?? '', // Valor por defecto: cadena vacía
+      id: map['id'] as String? ?? '',
       title: map['title'] as String? ?? 'Sin título',
       description: map['description'] as String? ?? 'Sin descripción',
       assignedTo: List<String>.from(map['assignedTo'] ?? []),
       assignedToStatus: Map<String, bool>.from(map['assignedToStatus'] ?? {}),
       createdAt: map['createdAt'] != null
           ? DateTime.parse(map['createdAt'])
-          : DateTime.now(), // Valor por defecto: ahora
+          : DateTime.now(),
     );
   }
 }
