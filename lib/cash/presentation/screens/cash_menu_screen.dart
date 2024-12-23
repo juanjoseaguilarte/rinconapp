@@ -1,5 +1,3 @@
-// lib/presentation/screens/cash_menu_screen.dart
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gestion_propinas/cash/infrastucture/repositories/firebase_arqueo_repository.dart';
@@ -11,8 +9,13 @@ import 'package:gestion_propinas/cash/presentation/screens/pay_screen.dart';
 
 class CashMenuScreen extends StatelessWidget {
   final Map<String, dynamic> loggedUser;
+  final double expectedAmount; // Añade el valor esperado
 
-  const CashMenuScreen({Key? key, required this.loggedUser}) : super(key: key);
+  const CashMenuScreen({
+    Key? key,
+    required this.loggedUser,
+    required this.expectedAmount, // Incluye en el constructor
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -150,6 +153,24 @@ class CashMenuScreen extends StatelessWidget {
                   ),
                 ),
                 child: const Text('Listado De Movimientos'),
+              ),
+            if (loggedUser['role'] == 'Admin')
+              ElevatedButton(
+                onPressed: null, // Es solo informativo
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(100, 100), // Cuadrado de 100x100
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(0), // esquinas no redondeadas
+                  ),
+                ),
+                child: Text(
+                  'Cantidad esperada: ${expectedAmount.toStringAsFixed(2)} €',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ElevatedButton(
               onPressed: () async {

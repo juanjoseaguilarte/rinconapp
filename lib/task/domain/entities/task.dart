@@ -5,6 +5,7 @@ class Task {
   final List<String> assignedTo;
   final Map<String, bool> assignedToStatus;
   final DateTime createdAt;
+  final String createdBy; // Nuevo atributo
 
   Task({
     required this.id,
@@ -13,6 +14,7 @@ class Task {
     required this.assignedTo,
     required this.assignedToStatus,
     required this.createdAt,
+    required this.createdBy,
   });
 
   Map<String, dynamic> toMap() {
@@ -23,6 +25,7 @@ class Task {
       'assignedTo': assignedTo,
       'assignedToStatus': assignedToStatus,
       'createdAt': createdAt.toIso8601String(),
+      'createdBy': createdBy,
     };
   }
 
@@ -36,6 +39,7 @@ class Task {
       createdAt: map['createdAt'] != null
           ? DateTime.parse(map['createdAt'])
           : DateTime.now(),
+      createdBy: map['createdBy'] as String? ?? '',
     );
   }
 }

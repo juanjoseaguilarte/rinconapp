@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:gestion_propinas/task/application/usecases/get_tasks_created_by_usecase.dart';
 import 'package:provider/provider.dart'; // Importar Provider para AppState
 import 'package:gestion_propinas/employee/application/services/employee_service.dart';
 import 'package:gestion_propinas/employee/application/usecases/add_employee.dart';
@@ -59,6 +60,7 @@ void main() async {
     getUserTasksUseCase: GetUserTasks(taskRepository),
     updateTaskStatusUseCase: UpdateTaskStatus(taskRepository),
     addTaskUseCase: AddTask(taskRepository),
+    getTasksCreatedByUseCase: GetTasksCreatedBy(taskRepository,)
   );
 
   runApp(
@@ -93,7 +95,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Gestión de Propinas',
+      title: 'Gestión El Rincón De Juan',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,

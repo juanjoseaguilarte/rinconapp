@@ -2,33 +2,35 @@ class Employee {
   final String id;
   final String name;
   final int pin;
-  final String role; // Añadir el campo `role`
+  final String role;
+  final String position; // Nuevo campo
 
   Employee({
     required this.id,
     required this.name,
     required this.pin,
-    required this.role, // Incluir `role` en el constructor
+    required this.role,
+    required this.position, // Incluye `position` en el constructor
   });
 
-  // Método para crear una instancia de Employee desde un mapa
   factory Employee.fromMap(Map<String, dynamic> data) {
     return Employee(
       id: data['id'] as String? ?? '',
       name: data['name'] as String? ?? '',
       pin: data['pin'] as int? ?? 0,
-      role: data['role'] as String? ??
-          'Empleado', // Asegurarse de obtener `role` del mapa
+      role: data['role'] as String? ?? 'Empleado',
+      position:
+          data['position'] as String? ?? 'Sin especificar', // Valor por defecto
     );
   }
 
-  // Método para convertir una instancia de Employee a un mapa
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'name': name,
       'pin': pin,
-      'role': role, // Incluir `role` en el mapa
+      'role': role,
+      'position': position, // Incluye `position` al convertir a mapa
     };
   }
 }

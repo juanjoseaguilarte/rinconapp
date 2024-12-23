@@ -7,7 +7,10 @@ class AddTask {
   AddTask(this.taskRepository);
 
   Future<void> call(
-      List<String> userIds, String title, String description) async {
+      String createdBy, // Nuevo parámetro para indicar quién crea la tarea
+      List<String> userIds,
+      String title,
+      String description) async {
     final Map<String, bool> assignedToStatus = {
       for (var userId in userIds) userId: false,
     };
@@ -19,6 +22,7 @@ class AddTask {
       assignedTo: userIds,
       assignedToStatus: assignedToStatus,
       createdAt: DateTime.now(),
+      createdBy: createdBy, // Se incluye el creador aquí
     );
 
     await taskRepository.addTask(task);

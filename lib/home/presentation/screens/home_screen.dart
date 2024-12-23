@@ -1,15 +1,20 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esc_pos_printer/esc_pos_printer.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:gestion_propinas/cash/infrastucture/repositories/firebase_arqueo_repository.dart';
+import 'package:gestion_propinas/cash/infrastucture/repositories/firebase_cash_adapter.dart';
 import 'package:gestion_propinas/employee/application/services/employee_service.dart';
+import 'package:gestion_propinas/employee/presentation/screens/employee_screen.dart';
 import 'package:gestion_propinas/task/application/services/task_service.dart';
 import 'package:gestion_propinas/tip/domain/repositories/tip_repository.dart';
 import 'package:gestion_propinas/cash/presentation/screens/cash_menu_screen.dart';
 import 'package:gestion_propinas/admin/presentation/screens/admin_screen.dart';
 import 'package:gestion_propinas/task/presentation/screens/add_task_screen.dart';
-import 'package:gestion_propinas/task/presentation/screens/task_screen.dart';
 import 'package:gestion_propinas/tip/presentation/screens/tip_options_screen.dart';
+import 'package:gestion_propinas/task/presentation/screens/task_screen.dart'
+    as TaskScreenView;
 
 class HomeScreen extends StatefulWidget {
   final EmployeeService employeeService;
@@ -47,9 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadEmployees() async {
     final employees = await widget.employeeService.getAllEmployees();
-
-    // Obtener tareas pendientes de cada empleado
     final Map<String, int> pendingTasks = {};
+
     for (var employee in employees) {
       final tasks = await widget.taskService.getTasksForUser(employee.id);
       final pending = tasks
@@ -70,14 +74,13 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final profile = await CapabilityProfile.load();
       final printer = NetworkPrinter(PaperSize.mm80, profile);
-
       final PosPrintResult res =
           await printer.connect('192.168.1.100', port: 9100);
 
       if (res == PosPrintResult.success) {
         printer.text('Hola, esta es una prueba de impresión',
             styles: PosStyles(align: PosAlign.center));
-        printer.feed(2); // Alimentar 2 líneas
+        printer.feed(2);
         printer.cut();
         printer.disconnect();
 
@@ -183,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   bottom: 0,
                   child: Container(
                     padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Colors.red,
                       shape: BoxShape.circle,
                     ),
@@ -268,12 +271,45 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+                // Lógica para calcular `expectedAmount`
+                final arqueoRepository = FirebaseArqueoRepository(
+                  firestore: FirebaseFirestore.instance,
+                );
+                final transactionRepo = FirebaseCashTransactionRepository(
+                  firestore: FirebaseFirestore.instance,
+                );
+
+                // Obtener el monto inicial y las transacciones desde la última fecha de arqueo
+                double initialAmount =
+                    await arqueoRepository.getInitialAmount();
+                DateTime? lastArqueoDate =
+                    await arqueoRepository.getLastArqueoDate() ??
+                        DateTime(2000);
+
+                final transactions = await transactionRepo
+                    .fetchTransactionsSince(lastArqueoDate);
+
+                double entradas = 0.0;
+                double salidas = 0.0;
+                for (var t in transactions) {
+                  if (t.type == 'entrada') {
+                    entradas += t.amount;
+                  } else if (t.type == 'salida') {
+                    salidas += t.amount;
+                  }
+                }
+
+                final expectedAmount = initialAmount + entradas - salidas;
+
+                // Navegar a `CashMenuScreen` con el valor calculado
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        CashMenuScreen(loggedUser: _loggedInUser!),
+                    builder: (context) => CashMenuScreen(
+                      loggedUser: _loggedInUser!,
+                      expectedAmount: expectedAmount,
+                    ),
                   ),
                 );
               },
@@ -285,15 +321,33 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => TaskScreen(
+                    builder: (context) => EmployeeScreen(
+                      employeeService: widget.employeeService,
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Empleados'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TaskScreenView.TaskScreen(
                       userId: _loggedInUser!['id'],
+                      userRole: _loggedInUser!['role'],
+                      taskService:
+                          widget.taskService, // Incluye taskService aquí
+                      loggedInUser: _loggedInUser,
                       getUserTasks: widget.taskService.getTasksForUser,
                       updateTaskStatus: widget.taskService.updateTaskStatus,
                     ),
                   ),
                 );
               },
-              child: const Text('Tareas'),
+              child: const Text('BETA Tareas'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -302,21 +356,33 @@ class _HomeScreenState extends State<HomeScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => AddTaskScreen(
-                      addTask: (userIds, title, description) {
-                        return widget.taskService
-                            .addTask(userIds, title, description);
+                      fetchEmployees: () async {
+                        final employees =
+                            await widget.employeeService.getAllEmployees();
+                        return employees
+                            .map((e) => {'id': e.id, 'name': e.name})
+                            .toList();
                       },
-                      fetchEmployees: widget.employeeService.getAllEmployees,
+                      addTask: (userIds, title, description) {
+                        // Ajustar la llamada para incluir `createdBy`
+                        return widget.taskService.addTask(
+                          _loggedInUser![
+                              'id'], // ID del usuario actual como `createdBy`
+                          userIds,
+                          title,
+                          description,
+                        );
+                      },
                     ),
                   ),
                 );
               },
-              child: const Text('Agregar Tarea'),
+              child: const Text('BETA Agregar Tarea'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _printTest,
-              child: const Text('Test de Impresión'),
+              child: const Text('BETA Test de Impresión'),
             ),
           ],
         ),

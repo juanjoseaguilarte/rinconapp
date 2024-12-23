@@ -40,6 +40,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     _nameController.text = isEditing ? employee.name : '';
     _pinController.text = isEditing ? employee.pin.toString() : '';
     selectedRole = isEditing ? employee.role : 'Empleado';
+    String selectedPosition = isEditing ? employee.position : 'Sin especificar';
 
     showDialog(
       context: context,
@@ -71,7 +72,23 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                   selectedRole = value;
                 }
               },
-              decoration: const InputDecoration(hintText: 'Selecciona un rol'),
+              decoration: const InputDecoration(hintText: 'Selecciona un puesto'),
+            ),
+            DropdownButtonFormField<String>(
+              value: selectedPosition,
+              items: ['Sala', 'Cocina', 'Admin'].map((position) {
+                return DropdownMenuItem(
+                  value: position,
+                  child: Text(position),
+                );
+              }).toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  selectedPosition = value;
+                }
+              },
+              decoration:
+                  const InputDecoration(hintText: 'Selecciona un puesto'),
             ),
           ],
         ),
@@ -89,10 +106,11 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                 if (isEditing) {
                   // Editar empleado
                   final updatedEmployee = Employee(
-                    id: employee.id,
+                    id: employee!.id,
                     name: name,
                     pin: pin,
                     role: selectedRole,
+                    position: selectedPosition,
                   );
                   await widget.employeeService.updateEmployee(updatedEmployee);
                 } else {
@@ -103,6 +121,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                     name: name,
                     pin: pin,
                     role: selectedRole,
+                    position: selectedPosition,
                   );
                   await widget.employeeService.addEmployee(newEmployee);
                 }
@@ -244,7 +263,7 @@ class EmployeeList extends StatelessWidget {
         final employee = employees[index];
         return ListTile(
           title: Text(employee.name),
-          subtitle: Text('Rol: ${employee.role}'),
+          subtitle: Text('Rol: ${employee.role}\nPuesto: ${employee.position}'),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
