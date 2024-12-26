@@ -274,11 +274,16 @@ class _TipCreateScreenState extends State<TipCreateScreen> {
                       border: OutlineInputBorder(),
                     ),
                     onChanged: (value) {
-                      // Reemplaza la coma por un punto al instante
-                      _cardTipController.text = value.replaceAll(',', '.');
-                      _cardTipController.selection = TextSelection.fromPosition(
-                        TextPosition(offset: _cashTipController.text.length),
-                      );
+                      final newValue = value.replaceAll(',', '.');
+                      if (_cardTipController.text != newValue) {
+                        final cursorPosition =
+                            _cardTipController.selection.baseOffset;
+                        _cardTipController.text = newValue;
+                        _cardTipController.selection =
+                            TextSelection.fromPosition(
+                          TextPosition(offset: cursorPosition),
+                        );
+                      }
                     }),
                 const SizedBox(height: 20),
                 const Center(
@@ -294,7 +299,7 @@ class _TipCreateScreenState extends State<TipCreateScreen> {
                   child: Column(
                     children: [
                       Text(
-                        '$_totalTip €',
+                        '${_totalTip.toStringAsFixed(2)} €',
                         style:
                             const TextStyle(fontSize: 30, color: Colors.green),
                       ),
