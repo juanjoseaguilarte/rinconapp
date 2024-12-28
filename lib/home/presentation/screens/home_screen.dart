@@ -1,20 +1,18 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:esc_pos_printer/esc_pos_printer.dart';
-import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:gestion_propinas/cash/infrastucture/repositories/firebase_arqueo_repository.dart';
 import 'package:gestion_propinas/cash/infrastucture/repositories/firebase_cash_adapter.dart';
 import 'package:gestion_propinas/employee/application/services/employee_service.dart';
-import 'package:gestion_propinas/employee/presentation/screens/employee_screen.dart';
 import 'package:gestion_propinas/task/application/services/task_service.dart';
 import 'package:gestion_propinas/tip/domain/repositories/tip_repository.dart';
-import 'package:gestion_propinas/cash/presentation/screens/cash_menu_screen.dart';
 import 'package:gestion_propinas/admin/presentation/screens/admin_screen.dart';
-import 'package:gestion_propinas/task/presentation/screens/add_task_screen.dart';
+import 'package:gestion_propinas/cash/presentation/screens/cash_menu_screen.dart';
+import 'package:gestion_propinas/employee/presentation/screens/employee_screen.dart';
 import 'package:gestion_propinas/tip/presentation/screens/tip_options_screen.dart';
 import 'package:gestion_propinas/task/presentation/screens/task_screen.dart'
     as TaskScreenView;
+import 'package:gestion_propinas/task/presentation/screens/add_task_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final EmployeeService employeeService;
@@ -51,50 +49,40 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadEmployees() async {
-    final employees = await widget.employeeService.getAllEmployees();
-    final Map<String, int> pendingTasks = {};
-
-    for (var employee in employees) {
-      final tasks = await widget.taskService.getTasksForUser(employee.id);
-      final pending = tasks
-          .where((task) => !(task.assignedToStatus[employee.id] ?? false))
-          .length;
-      pendingTasks[employee.id] = pending;
-    }
-
-    setState(() {
-      _employees = employees
-          .map((e) => {'id': e.id, 'name': e.name, 'role': e.role})
-          .toList();
-      _pendingTasks = pendingTasks;
-    });
-  }
-
-  void _printTest() async {
     try {
-      final profile = await CapabilityProfile.load();
-      final printer = NetworkPrinter(PaperSize.mm80, profile);
-      final PosPrintResult res =
-          await printer.connect('192.168.1.100', port: 9100);
+      final employees = await widget.employeeService.getAllEmployees();
+      final Map<String, int> pendingTasks = {};
 
-      if (res == PosPrintResult.success) {
-        printer.text('Hola, esta es una prueba de impresión',
-            styles: PosStyles(align: PosAlign.center));
-        printer.feed(2);
-        printer.cut();
-        printer.disconnect();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Impresión completada con éxito')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al conectar: ${res.msg}')),
-        );
+      for (var employee in employees) {
+        final tasks = await widget.taskService.getTasksForUser(employee.id);
+        final pending = tasks
+            .where((task) => !(task.assignedToStatus[employee.id] ?? false))
+            .length;
+        pendingTasks[employee.id] = pending;
       }
+
+      employees.sort((a, b) {
+        const rolePriority = {'Admin': 1, 'Encargado': 2, 'Empleado': 3};
+        final priorityA = rolePriority[a.role] ?? 4;
+        final priorityB = rolePriority[b.role] ?? 4;
+        return priorityA.compareTo(priorityB);
+      });
+
+      setState(() {
+        _employees = employees
+            .map((e) => {
+                  'id': e.id,
+                  'name': e.name,
+                  'role': e.role,
+                  'position': e.position,
+                })
+            .toList();
+        _pendingTasks = pendingTasks;
+      });
     } catch (e) {
+      print('Error al cargar empleados o tareas: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al imprimir: $e')),
+        const SnackBar(content: Text('Error al cargar empleados o tareas')),
       );
     }
   }
@@ -153,55 +141,187 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildEmployeeSelection() {
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      children: _employees.map((user) {
-        final pendingTasksCount = _pendingTasks[user['id']] ?? 0;
+    final roles = ['Admin', 'Encargado', 'Empleado'];
 
-        return GestureDetector(
-          onTap: () => _showPinDialog(user),
-          child: Stack(
+    final groupedByRole = {
+      for (var role in roles)
+        role: _employees.where((e) => e['role'] == role).toList(),
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: roles.map((role) {
+        final employeesByRole = groupedByRole[role] ?? [];
+        if (employeesByRole.isEmpty) return const SizedBox();
+
+        if (role == 'Empleado') {
+          final positions = {'Sala', 'Cocina'};
+          final groupedByPosition = {
+            for (var position in positions)
+              position: employeesByRole
+                  .where((e) => e['position'] == position)
+                  .toList(),
+          };
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 80,
-                height: 80,
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey, width: 1),
-                ),
-                child: Center(
-                  child: Text(
-                    user['name'],
-                    style: const TextStyle(fontSize: 14),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  role,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              if (pendingTasksCount > 0)
-                Positioned(
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      '$pendingTasksCount',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+              ...groupedByPosition.entries.map((entry) {
+                final position = entry.key;
+                final employeesForPosition = entry.value;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Text(
+                        position,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.blueGrey,
+                        ),
                       ),
                     ),
-                  ),
-                ),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: employeesForPosition.map((user) {
+                        final pendingTasksCount =
+                            _pendingTasks[user['id']] ?? 0;
+
+                        return GestureDetector(
+                          onTap: () => _showPinDialog(user),
+                          child: Stack(
+                            children: [
+                              Container(
+                                width: 80,
+                                height: 80,
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(8),
+                                  border:
+                                      Border.all(color: Colors.grey, width: 1),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    user['name'] ?? 'Sin Nombre',
+                                    style: const TextStyle(fontSize: 14),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                              if (pendingTasksCount > 0)
+                                Positioned(
+                                  right: 0,
+                                  bottom: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.red,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Text(
+                                      '$pendingTasksCount',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                );
+              }).toList(),
             ],
-          ),
+          );
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text(
+                role,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: employeesByRole.map((user) {
+                final pendingTasksCount = _pendingTasks[user['id']] ?? 0;
+
+                return GestureDetector(
+                  onTap: () => _showPinDialog(user),
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 80,
+                        height: 80,
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey, width: 1),
+                        ),
+                        child: Center(
+                          child: Text(
+                            user['name'],
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ),
+                      ),
+                      if (pendingTasksCount > 0)
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              '$pendingTasksCount',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
         );
       }).toList(),
     );
@@ -272,7 +392,6 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                // Lógica para calcular `expectedAmount`
                 final arqueoRepository = FirebaseArqueoRepository(
                   firestore: FirebaseFirestore.instance,
                 );
@@ -280,7 +399,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   firestore: FirebaseFirestore.instance,
                 );
 
-                // Obtener el monto inicial y las transacciones desde la última fecha de arqueo
                 double initialAmount =
                     await arqueoRepository.getInitialAmount();
                 DateTime? lastArqueoDate =
@@ -302,7 +420,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 final expectedAmount = initialAmount + entradas - salidas;
 
-                // Navegar a `CashMenuScreen` con el valor calculado
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -338,8 +455,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     builder: (context) => TaskScreenView.TaskScreen(
                       userId: _loggedInUser!['id'],
                       userRole: _loggedInUser!['role'],
-                      taskService:
-                          widget.taskService, // Incluye taskService aquí
+                      taskService: widget.taskService,
                       loggedInUser: _loggedInUser,
                       getUserTasks: widget.taskService.getTasksForUser,
                       updateTaskStatus: widget.taskService.updateTaskStatus,
@@ -364,10 +480,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             .toList();
                       },
                       addTask: (userIds, title, description) {
-                        // Ajustar la llamada para incluir `createdBy`
                         return widget.taskService.addTask(
-                          _loggedInUser![
-                              'id'], // ID del usuario actual como `createdBy`
+                          _loggedInUser!['id'],
                           userIds,
                           title,
                           description,
@@ -378,11 +492,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
               child: const Text('BETA Agregar Tarea'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _printTest,
-              child: const Text('BETA Test de Impresión'),
             ),
           ],
         ),
