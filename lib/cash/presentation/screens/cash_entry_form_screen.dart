@@ -1,5 +1,3 @@
-// lib/presentation/screens/cash_entry_form_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:gestion_propinas/cash/domain/repositories/cash_transation_repository.dart';
 
@@ -63,11 +61,11 @@ class _CashEntryFormScreenState extends State<CashEntryFormScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              'Transacción guardada en Firestore: ${widget.transactionType}, Importe: $amount, Motivo: $reason, Usuario: ${widget.loggedUser['name']}'),
+              'Transacción guardada: ${widget.transactionType.toUpperCase()}, Importe: $amount €, Motivo: $reason'),
         ),
       );
 
-      Navigator.pop(context); // Vuelve atrás tras guardar
+      Navigator.pop(context); // Volver atrás después de guardar
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al guardar transacción: $e')),
@@ -86,6 +84,7 @@ class _CashEntryFormScreenState extends State<CashEntryFormScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
                 'Usuario: ${widget.loggedUser['name']} (${widget.loggedUser['role']})'),
@@ -93,10 +92,10 @@ class _CashEntryFormScreenState extends State<CashEntryFormScreen> {
             TextField(
               controller: _amountController,
               decoration: const InputDecoration(
-                labelText: 'Importe',
+                labelText: 'Importe (€)',
                 border: OutlineInputBorder(),
               ),
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
             ),
             const SizedBox(height: 20),
             TextField(
@@ -105,11 +104,17 @@ class _CashEntryFormScreenState extends State<CashEntryFormScreen> {
                 labelText: 'Motivo',
                 border: OutlineInputBorder(),
               ),
+              maxLength: 100,
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _saveTransaction,
-              child: const Text('Guardar'),
+            Center(
+              child: ElevatedButton(
+                onPressed: _saveTransaction,
+                child: const Text('Guardar'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(150, 50),
+                ),
+              ),
             ),
           ],
         ),

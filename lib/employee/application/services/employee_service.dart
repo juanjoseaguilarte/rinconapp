@@ -3,22 +3,21 @@ import 'package:gestion_propinas/employee/application/usecases/delete_employee.d
 import 'package:gestion_propinas/employee/application/usecases/fetch_employees.dart';
 import 'package:gestion_propinas/employee/application/usecases/get_employee_by_pin.dart';
 import 'package:gestion_propinas/employee/application/usecases/update_employee.dart';
-
-import '../../domain/entities/employee.dart';
+import 'package:gestion_propinas/employee/domain/entities/employee.dart';
 
 class EmployeeService {
   final FetchEmployees fetchEmployeesUseCase;
   final AddEmployee addEmployeeUseCase;
   final GetEmployeeByPin getEmployeeByPinUseCase;
   final UpdateEmployee updateEmployeeUseCase;
-  final DeleteEmployee deleteEmployeeUseCase; 
+  final DeleteEmployee deleteEmployeeUseCase;
 
   EmployeeService({
     required this.fetchEmployeesUseCase,
     required this.addEmployeeUseCase,
     required this.getEmployeeByPinUseCase,
     required this.updateEmployeeUseCase,
-    required this.deleteEmployeeUseCase, 
+    required this.deleteEmployeeUseCase,
   });
 
   Future<List<Employee>> getAllEmployees() async {
@@ -39,5 +38,10 @@ class EmployeeService {
 
   Future<void> deleteEmployee(String id) async {
     await deleteEmployeeUseCase.execute(id);
+  }
+
+  /// Obtiene el empleado actual basado en un PIN u otra credencial
+  Future<Employee?> getCurrentUser(int currentUserPin) async {
+    return await getEmployeeByPin(currentUserPin);
   }
 }

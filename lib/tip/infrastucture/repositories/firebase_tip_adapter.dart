@@ -17,11 +17,8 @@ class FirebaseTipAdapter implements TipRepository {
 
   @override
   Future<List<Tip>> fetchTips() async {
-    final snapshot = await _db
-        .collection('tips')
-        .where('isDeleted', isEqualTo: false)
-        // .where('employeePayments', isNotEqualTo: 'LWFwojdvqZCuppnPB9Be')
-        .get();
+    final snapshot =
+        await _db.collection('tips').get(); // No excluyas `isDeleted`
     return snapshot.docs.map((doc) => Tip.fromMap(doc.id, doc.data())).toList();
   }
 

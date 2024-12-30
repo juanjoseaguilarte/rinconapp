@@ -5,11 +5,13 @@ import 'package:gestion_propinas/tip/domain/repositories/tip_repository.dart';
 class TipPayScreen extends StatefulWidget {
   final TipRepository tipRepository;
   final EmployeeService employeeService;
+  final Map<String, dynamic> loggedUser;
 
   const TipPayScreen({
     Key? key,
     required this.tipRepository,
     required this.employeeService,
+    required this.loggedUser,
   }) : super(key: key);
 
   @override
@@ -21,6 +23,7 @@ class _TipPayScreenState extends State<TipPayScreen> {
   Map<String, double> _employeeTips = {};
   Map<String, String> _employeeNames = {};
   bool _isLoading = false;
+  late String? _currentUserRole;
 
   DateTime _getNearestMonday(DateTime date) {
     return date.subtract(Duration(days: date.weekday - DateTime.monday));
@@ -37,18 +40,13 @@ class _TipPayScreenState extends State<TipPayScreen> {
     setState(() {
       _selectedMonday = monday;
       _isLoading = true;
+      _currentUserRole = widget.loggedUser['role'];
     });
-    print('Lunes seleccionado: $_selectedMonday');
-    await _loadTipsForSelectedMonday();
+
+    await _calculateEmployeeTips(monday);
     setState(() {
       _isLoading = false;
     });
-  }
-
-  Future<void> _loadTipsForSelectedMonday() async {
-    if (_selectedMonday == null) return;
-    print('Cargando propinas para: $_selectedMonday');
-    await _calculateEmployeeTips(_selectedMonday!);
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -65,7 +63,11 @@ class _TipPayScreenState extends State<TipPayScreen> {
         _selectedMonday = pickedDate;
         _isLoading = true;
       });
-      print('Nuevo lunes seleccionado: $_selectedMonday');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Lunes seleccionado: ${pickedDate.toLocal()}'),
+        ),
+      );
       await _calculateEmployeeTips(pickedDate);
       setState(() {
         _isLoading = false;
@@ -76,9 +78,6 @@ class _TipPayScreenState extends State<TipPayScreen> {
   Future<void> _calculateEmployeeTips(DateTime monday) async {
     try {
       final sunday = monday.add(const Duration(days: 6));
-      print('Calculando propinas desde $monday hasta $sunday');
-
-      // Truncar lunes y domingo al inicio del día
       final startOfMonday = DateTime(monday.year, monday.month, monday.day);
       final endOfSunday =
           DateTime(sunday.year, sunday.month, sunday.day, 23, 59, 59);
@@ -86,44 +85,33 @@ class _TipPayScreenState extends State<TipPayScreen> {
       final tips = await widget.tipRepository.fetchTips();
       final employees = await widget.employeeService.getAllEmployees();
 
-      // Encuentra el ID del administrador
-      final adminEmployee =
-          employees.firstWhere((employee) => employee.role == 'Admin');
-
-      final adminId = adminEmployee?.id;
-
-      print('Propinas obtenidas de fetchTips: ${tips.length}');
+      final adminEmployee = employees.firstWhere((e) => e.role == 'Admin');
+      final adminId = adminEmployee.id;
+      final loggedUserId = widget.loggedUser['id'];
 
       final weeklyTips = tips.where((tip) {
         final tipDate = tip.date;
-        // Comparar solo las fechas truncadas y excluir las propinas del Admin
-        final inRange = tipDate != null &&
+        return tipDate != null &&
             tipDate
                 .isAfter(startOfMonday.subtract(const Duration(seconds: 1))) &&
             tipDate.isBefore(endOfSunday.add(const Duration(seconds: 1))) &&
             !tip.isDeleted;
-
-        if (!inRange) {
-          print(
-              'Propina fuera de rango: Fecha=${tip.date}, Eliminada=${tip.isDeleted}');
-        }
-
-        return inRange;
       }).toList();
-
-      print('Propinas en rango: ${weeklyTips.length}');
 
       final Map<String, double> employeeTotals = {};
       for (var tip in weeklyTips) {
+        // Incluir `adminShare` para el administrador logueado
+        if (loggedUserId == adminId) {
+          employeeTotals[adminId] =
+              (employeeTotals[adminId] ?? 0) + tip.adminShare;
+        }
+
         tip.employeePayments.forEach((employeeId, paymentDetails) {
-          if (!(paymentDetails['isDeleted'] ?? false) &&
-              employeeId != adminId) {
-            // Excluir propinas del Admin
-            final amount =
-                ((paymentDetails['cash'] as num?)?.toDouble() ?? 0.0) +
-                    ((paymentDetails['card'] as num?)?.toDouble() ?? 0.0);
+          if (!(paymentDetails['isDeleted'] ?? false)) {
+            final cash = (paymentDetails['cash'] as num?)?.toDouble() ?? 0.0;
+            final card = (paymentDetails['card'] as num?)?.toDouble() ?? 0.0;
             employeeTotals[employeeId] =
-                (employeeTotals[employeeId] ?? 0) + amount;
+                (employeeTotals[employeeId] ?? 0) + cash + card;
           }
         });
       }
@@ -136,7 +124,6 @@ class _TipPayScreenState extends State<TipPayScreen> {
         _employeeTips = employeeTotals;
         _employeeNames = names;
       });
-      print('Propinas calculadas: $_employeeTips');
     } catch (e) {
       print('Error al calcular propinas: $e');
       if (mounted) {
@@ -147,140 +134,124 @@ class _TipPayScreenState extends State<TipPayScreen> {
     }
   }
 
-  Future<void> _payTips(String employeeId, double amount) async {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirmar Pago'),
-        content: Text(
-            '¿Estás seguro de que deseas pagar \$${amount.toStringAsFixed(2)} a este empleado?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.of(context).pop(); // Cierra el modal
-
-              try {
-                final tips = await widget.tipRepository.fetchTips();
-                for (var tip in tips) {
-                  if (tip.employeePayments.containsKey(employeeId)) {
-                    final updatedPayments = Map.of(tip.employeePayments);
-
-                    // Marca como pagado para el empleado
-                    updatedPayments[employeeId]?['isDeleted'] = true;
-
-                    // Actualiza la propina
-                    final updatedTip = tip.copyWith(
-                      employeePayments: updatedPayments,
-                    );
-                    await widget.tipRepository.updateTip(updatedTip);
-                  }
-                }
-
-                setState(() {
-                  _employeeTips.remove(employeeId);
-                });
-
-                scaffoldMessenger.showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Pago realizado a empleado ${_employeeNames[employeeId] ?? 'Sin Nombre'}',
-                    ),
-                  ),
-                );
-              } catch (e) {
-                print('Error al realizar el pago: $e');
-                scaffoldMessenger.showSnackBar(
-                  const SnackBar(content: Text('Error al realizar el pago')),
-                );
-              }
-            },
-            child: const Text('Confirmar'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<bool> _onWillPop() async {
-    if (_employeeTips.isNotEmpty) {
-      final confirm = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Atención'),
-          content: const Text(
-              'Aún quedan propinas pendientes por pagar. Si sales ahora, se procederá a pagar todas las propinas automáticamente (excepto Admin). ¿Deseas continuar?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.pop(context, true);
-              },
-              child: const Text('Aceptar'),
-            ),
-          ],
-        ),
-      );
-
-      if (confirm == true) {
-        await _payAllRemainingTips();
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      return true;
-    }
-  }
-
-  Future<void> _payAllRemainingTips() async {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
+  Future<void> _payAllPendingTipsInSelectedWeek() async {
     try {
+      if (_selectedMonday == null) return;
+
+      final monday = _selectedMonday!;
+      final sunday = monday.add(const Duration(days: 6));
+      final startOfMonday = DateTime(monday.year, monday.month, monday.day);
+      final endOfSunday =
+          DateTime(sunday.year, sunday.month, sunday.day, 23, 59, 59);
+
       final tips = await widget.tipRepository.fetchTips();
-      final employees = await widget.employeeService.getAllEmployees();
-
-      // Encuentra el ID del empleado con rol de "Admin"
-      final adminEmployee = employees.firstWhere(
-        (employee) => employee.role == 'Admin',
-      );
-
-      final adminId = adminEmployee?.id;
 
       for (var tip in tips) {
-        bool updated = false;
-        final updatedPayments = Map.of(tip.employeePayments);
+        if (tip.date
+                .isAfter(startOfMonday.subtract(const Duration(seconds: 1))) &&
+            tip.date.isBefore(endOfSunday.add(const Duration(seconds: 1))) &&
+            !tip.isDeleted) {
+          tip.employeePayments.forEach((employeeId, paymentDetails) {
+            if (!(paymentDetails['isDeleted'] ?? false)) {
+              paymentDetails['isDeleted'] = true;
+            }
+          });
 
-        updatedPayments.forEach((employeeId, paymentDetails) {
-          // Excluye al empleado "Admin" y marca como pagado solo a otros
-          if ((paymentDetails['isDeleted'] == false ||
-                  paymentDetails['isDeleted'] == null) &&
-              employeeId != adminId) {
-            updatedPayments[employeeId]?['isDeleted'] = true;
-            updated = true;
-          }
-        });
-
-        if (updated) {
-          final updatedTip = tip.copyWith(employeePayments: updatedPayments);
+          // Actualizar la propina como pagada
+          final updatedTip =
+              tip.copyWith(employeePayments: tip.employeePayments);
           await widget.tipRepository.updateTip(updatedTip);
         }
       }
 
-      scaffoldMessenger.showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Se han pagado todas las propinas pendientes.')),
+            content: Text(
+                'Propinas de la semana seleccionada pagadas automáticamente.')),
+      );
+
+      // Limpiar las propinas pendientes
+      setState(() {
+        _employeeTips.clear();
+      });
+    } catch (e) {
+      print('Error al pagar propinas automáticamente: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Error al pagar propinas automáticamente')),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    // Pagar las propinas automáticamente al salir de la pantalla para la semana seleccionada
+    _payAllPendingTipsInSelectedWeek();
+    super.dispose();
+  }
+
+  Future<void> _payTipForEmployee(String employeeId) async {
+    try {
+      final tips = await widget.tipRepository.fetchTips();
+
+      for (var tip in tips) {
+        if (tip.employeePayments.containsKey(employeeId)) {
+          final updatedPayments = Map.of(tip.employeePayments);
+
+          if (!(updatedPayments[employeeId]?['isDeleted'] ?? false)) {
+            updatedPayments[employeeId]?['isDeleted'] = true;
+
+            final updatedTip = tip.copyWith(employeePayments: updatedPayments);
+            await widget.tipRepository.updateTip(updatedTip);
+          }
+        }
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                'Propina pagada exitosamente a ${_employeeNames[employeeId]}')),
+      );
+
+      setState(() {
+        _employeeTips.remove(employeeId);
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al pagar la propina: $e')),
+      );
+    }
+  }
+
+  Future<void> markAllTipsAsUnpaid() async {
+    try {
+      // Obtener todas las propinas desde el repositorio
+      final tips = await widget.tipRepository.fetchTips();
+
+      for (var tip in tips) {
+        // Recorrer los pagos de empleados y marcar todos como no pagados
+        final updatedPayments = Map.of(tip.employeePayments);
+        updatedPayments.forEach((employeeId, paymentDetails) {
+          paymentDetails['isDeleted'] = false; // Marcar como no pagado
+        });
+
+        // Crear una nueva copia de la propina con los cambios
+        final updatedTip = tip.copyWith(employeePayments: updatedPayments);
+
+        // Actualizar la propina en el repositorio
+        await widget.tipRepository.updateTip(updatedTip);
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content:
+                Text('Todas las propinas han sido marcadas como no pagadas.')),
       );
     } catch (e) {
-      print('Error al pagar todas las propinas: $e');
-      scaffoldMessenger.showSnackBar(
-        const SnackBar(content: Text('Error al pagar todas las propinas')),
+      print('Error al marcar todas las propinas como no pagadas: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Error al marcar las propinas como no pagadas.')),
       );
     }
   }
@@ -290,58 +261,70 @@ class _TipPayScreenState extends State<TipPayScreen> {
     final startDate = _selectedMonday;
     final endDate = startDate?.add(const Duration(days: 6));
 
-    return WillPopScope(
-      onWillPop: _onWillPop,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Pagar Todas Las Propinas'),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (startDate != null && endDate != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: Text(
-                    'Propinas desde ${startDate.year}-${startDate.month}-${startDate.day} '
-                    'hasta ${endDate.year}-${endDate.month}-${endDate.day}',
-                    style: const TextStyle(fontSize: 16),
-                  ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Pagar Todas Las Propinas'),
+        actions: [
+          if (_currentUserRole == 'Admin' || _currentUserRole == 'Encargado')
+            IconButton(
+              icon: const Icon(Icons.calendar_today),
+              onPressed: () => _selectDate(context),
+            ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (widget.loggedUser['role'] == "Admin") 
+            ElevatedButton(
+              onPressed: markAllTipsAsUnpaid,
+              child: const Text('Restablecer Propinas'),
+            ),
+            if (startDate != null && endDate != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Text(
+                  'Propinas desde ${startDate.year}-${startDate.month}-${startDate.day} '
+                  'hasta ${endDate.year}-${endDate.month}-${endDate.day}',
+                  style: const TextStyle(fontSize: 16),
                 ),
-              if (_isLoading)
-                const Center(child: CircularProgressIndicator())
-              else if (_employeeTips.isEmpty)
-                const Center(
-                  child: Text(
-                    'No hay propinas para la semana seleccionada',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18),
-                  ),
-                )
-              else
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: _employeeTips.length,
-                    itemBuilder: (context, index) {
-                      final employeeId = _employeeTips.keys.elementAt(index);
-                      final amount = _employeeTips[employeeId]!;
-                      final employeeName =
-                          _employeeNames[employeeId] ?? 'Sin Nombre';
+              ),
+            if (_isLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (_employeeTips.isEmpty)
+              const Center(
+                child: Text(
+                  'No hay propinas para la semana seleccionada',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18),
+                ),
+              )
+            else
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _employeeTips.length,
+                  itemBuilder: (context, index) {
+                    final employeeId = _employeeTips.keys.elementAt(index);
+                    final amount = _employeeTips[employeeId]!;
+                    final employeeName =
+                        _employeeNames[employeeId] ?? 'Sin Nombre';
 
-                      return Card(
-                        child: ListTile(
-                          title: Text('Empleado: $employeeName'),
-                          subtitle:
-                              Text('Total: €${amount.toStringAsFixed(2)}'),
+                    return Card(
+                      child: ListTile(
+                        title: Text('Empleado: $employeeName'),
+                        subtitle: Text('Total: €${amount.toStringAsFixed(2)}'),
+                        trailing: ElevatedButton(
+                          onPressed: () => _payTipForEmployee(employeeId),
+                          child: const Text('Pagar'),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );

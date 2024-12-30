@@ -139,7 +139,9 @@ class _TipOptionsScreenState extends State<TipOptionsScreen> {
                                   MaterialPageRoute(
                                     builder: (context) => TipPayScreen(
                                       tipRepository: widget.tipRepository,
-                                      employeeService: widget.employeeService,
+                                      employeeService: widget.employeeService, 
+                                      loggedUser: widget.loggedUser, 
+                                  
                                     ),
                                   ),
                                 );
