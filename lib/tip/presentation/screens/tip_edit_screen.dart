@@ -288,7 +288,7 @@ class _TipEditScreenState extends State<TipEditScreen> {
                                 style: TextStyle(
                                     fontSize: 24, fontWeight: FontWeight.bold)),
                             Text(
-                              '$_totalTip €',
+                              '${_totalTip.toStringAsFixed(2)} €',
                               style: const TextStyle(
                                   fontSize: 30, color: Colors.green),
                             ),
