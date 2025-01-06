@@ -83730,7 +83730,7 @@ return A.E($async$A4,r)}}
 A.a9t.prototype={}
 A.r9.prototype={
 G(a){var s=null
-return A.dJ(A.dB(s,B.j1,B.Vv),new A.b_(B.aS,A.cf(A.b([A.bR(B.Vn,new A.Yg(a),A.hI(s,s,B.j1,s,s,s,s,s,s,s,s,s,B.Fu,s,new A.c2(A.ek(8),B.o),s,s,s,s)),B.bF],t.p),B.bQ,B.z,B.R),s),s,s)}}
+return A.dJ(A.dB(s,B.j1,B.Vv),new A.b_(B.aS,A.cf(A.b([A.bR(B.Vo,new A.Yg(a),A.hI(s,s,B.j1,s,s,s,s,s,s,s,s,s,B.Fu,s,new A.c2(A.ek(8),B.o),s,s,s,s)),B.bF],t.p),B.bQ,B.z,B.R),s),s,s)}}
 A.Yg.prototype={
 $0(){var s=A.dt(new A.Yf(),null,t.z)
 A.bh(this.a,!1).d9(s)},
@@ -84757,11 +84757,11 @@ afy(){var s=this.as
 if(s!=null)s.aY()
 this.as=A.c9(B.n2,new A.akK(this))},
 G(a){var s,r=this,q=null,p=r.Q
-if(p==null)return A.dJ(A.dB(q,q,B.Vs),new A.b_(B.aS,new A.JP(r.w,r.x,r.y,r.z,r.gaff(),r.ax,q),q),q,q)
+if(p==null)return A.dJ(A.dB(q,q,B.Vj),new A.b_(B.aS,new A.JP(r.w,r.x,r.y,r.z,r.gaff(),r.ax,q),q),q,q)
 p=A.av("Bienvenido "+A.j(p.h(0,"name")),q,q,q,q,q,q,q)
 s=t.p
 p=A.dB(A.b([A.iC(q,B.Gr,q,q,new A.akV(r),q,q)],s),q,p)
-return A.dJ(p,A.adb(A.cf(A.b([A.bR(B.Vg,r.Q.h(0,"role")==="Admin"?new A.akW(a):q,q),B.a4,A.bR(B.zI,new A.akX(r,a),q),B.a4,A.bR(B.zS,new A.akY(r,a),q),B.a4,A.bR(B.VB,new A.akZ(r,a),q),B.a4,A.bR(B.Vu,new A.al_(r,a),q),B.a4,A.bR(B.Vk,new A.al0(r,a),q)],s),B.bQ,B.z,B.R),B.aS),q,q)},
+return A.dJ(p,A.adb(A.cf(A.b([A.bR(B.Vg,r.Q.h(0,"role")==="Admin"?new A.akW(a):q,q),B.a4,A.bR(B.zI,new A.akX(r,a),q),B.a4,A.bR(B.zS,new A.akY(r,a),q),B.a4,A.bR(B.VB,new A.akZ(r,a),q),B.a4,A.bR(B.Vu,new A.al_(r,a),q),B.a4,A.bR(B.Vl,new A.al0(r,a),q)],s),B.bQ,B.z,B.R),B.aS),q,q)},
 l(){var s=this,r=s.as
 if(r!=null)r.aY()
 r=s.at
@@ -85635,7 +85635,7 @@ case 5:return A.D(null,r)
 case 1:return A.C(p,r)}})
 return A.E($async$t4,r)},
 G(a){var s=null
-return A.dJ(A.dB(s,s,A.av("Pagar Propina a "+this.c,s,s,s,s,s,s,s)),new A.b_(B.aS,A.cf(A.b([A.av("Propina Total a Pagar: \u20ac"+B.c.a4(this.d,2),s,s,s,B.T0,s,s,s),B.a4,B.Wn,B.zm,A.bR(B.Vl,new A.a4s(this,a),A.hI(s,s,s,s,s,s,s,s,s,s,s,B.kU,s,s,s,s,s,s,s))],t.p),B.aF,B.z,B.R),s),s,s)}}
+return A.dJ(A.dB(s,s,A.av("Pagar Propina a "+this.c,s,s,s,s,s,s,s)),new A.b_(B.aS,A.cf(A.b([A.av("Propina Total a Pagar: \u20ac"+B.c.a4(this.d,2),s,s,s,B.T0,s,s,s),B.a4,B.Wn,B.zm,A.bR(B.Vm,new A.a4s(this,a),A.hI(s,s,s,s,s,s,s,s,s,s,s,B.kU,s,s,s,s,s,s,s))],t.p),B.aF,B.z,B.R),s),s,s)}}
 A.a4r.prototype={
 $1(a){return a.gqe()},
 $S:96}
@@ -85904,7 +85904,7 @@ case 6:case 1:return A.D(q,r)
 case 2:return A.C(o,r)}})
 return A.E($async$tg,r)},
 G(a){var s=this,r=null,q=A.dB(r,r,B.zI),p=A.dL(!0,B.ad,!1,r,!0,B.l,r,A.ed(),s.y,r,r,r,r,r,2,B.nH,B.w,!0,r,!0,r,!1,r,B.ae,r,r,r,r,r,r,r,1,r,r,!1,"\u2022",r,r,r,r,new A.aqb(s,a),!1,r,!0,r,!0,r,B.av,r,r,B.ab,B.a7,r,r,r,r,r,r,r,B.Q,r,B.aw,r,r,r,r),o=A.Ix(B.f2,2),n=A.ek(8),m=t.p
-return A.dJ(q,A.eQ(r,A.adb(new A.b_(B.aS,A.cf(A.b([B.zQ,p,B.a4,B.zK,A.hy(r,A.auK(B.am,r,!1,B.ob,new A.aqc(s),s.e,t.N),B.A,r,new A.cR(r,r,o,n,r,r,B.aA),r,r,r,new A.al(12,0,12,0),r,r,r),B.a4,B.zL,s.ag0(),B.a4,B.zN,A.dL(!0,B.ad,!1,r,!0,B.l,r,A.ed(),s.w,r,r,r,r,r,2,B.nJ,B.w,!0,r,!0,r,!1,r,B.ae,r,r,r,B.ci,r,r,r,1,r,r,!1,"\u2022",r,new A.aqd(s),r,r,r,!1,r,!1,r,!0,r,B.av,r,r,B.ab,B.a7,r,r,r,r,r,r,r,B.Q,r,B.aw,r,r,r,r),B.a4,B.zJ,A.dL(!0,B.ad,!1,r,!0,B.l,r,A.ed(),s.x,r,r,r,r,r,2,B.nL,B.w,!0,r,!0,r,!1,r,B.ae,r,r,r,B.ci,r,r,r,1,r,r,!1,"\u2022",r,new A.aqe(s),r,r,r,!1,r,!1,r,!0,r,B.av,r,r,B.ab,B.a7,r,r,r,r,r,r,r,B.Q,r,B.aw,r,r,r,r),B.a4,B.CW,A.el(A.cf(A.b([A.av(B.c.a4(s.z,2)+" \u20ac",r,r,r,B.zG,r,r,r)],m),B.X,B.z,B.R),r,r),B.a4,A.bR(B.Vr,s.gafC(),A.hI(r,r,r,r,r,r,r,r,r,B.m,r,B.kU,r,r,r,r,r,B.Tj,r))],m),B.aF,B.z,B.R),r),r),B.w,!1,r,r,r,r,r,r,r,r,r,r,r,r,r,new A.aqf(a),r,r,r,r,r,r),r,r)}}
+return A.dJ(q,A.eQ(r,A.adb(new A.b_(B.aS,A.cf(A.b([B.zQ,p,B.a4,B.zK,A.hy(r,A.auK(B.am,r,!1,B.ob,new A.aqc(s),s.e,t.N),B.A,r,new A.cR(r,r,o,n,r,r,B.aA),r,r,r,new A.al(12,0,12,0),r,r,r),B.a4,B.zL,s.ag0(),B.a4,B.zN,A.dL(!0,B.ad,!1,r,!0,B.l,r,A.ed(),s.w,r,r,r,r,r,2,B.nJ,B.w,!0,r,!0,r,!1,r,B.ae,r,r,r,B.ci,r,r,r,1,r,r,!1,"\u2022",r,new A.aqd(s),r,r,r,!1,r,!1,r,!0,r,B.av,r,r,B.ab,B.a7,r,r,r,r,r,r,r,B.Q,r,B.aw,r,r,r,r),B.a4,B.zJ,A.dL(!0,B.ad,!1,r,!0,B.l,r,A.ed(),s.x,r,r,r,r,r,2,B.nL,B.w,!0,r,!0,r,!1,r,B.ae,r,r,r,B.ci,r,r,r,1,r,r,!1,"\u2022",r,new A.aqe(s),r,r,r,!1,r,!1,r,!0,r,B.av,r,r,B.ab,B.a7,r,r,r,r,r,r,r,B.Q,r,B.aw,r,r,r,r),B.a4,B.CW,A.el(A.cf(A.b([A.av(B.c.a4(s.z,2)+" \u20ac",r,r,r,B.zG,r,r,r)],m),B.X,B.z,B.R),r,r),B.a4,A.bR(B.Vs,s.gafC(),A.hI(r,r,r,r,r,r,r,r,r,B.m,r,B.kU,r,r,r,r,r,B.Tj,r))],m),B.aF,B.z,B.R),r),r),B.w,!1,r,r,r,r,r,r,r,r,r,r,r,r,r,new A.aqf(a),r,r,r,r,r,r),r,r)}}
 A.aq9.prototype={
 $0(){this.a.z=this.b+this.c},
 $S:0}
@@ -86246,7 +86246,7 @@ o=A.bR(B.Ws,p.length!==0?new A.ar3(q,a,p):null,s)
 n=A.bR(B.Wv,new A.ar4(q,a),s)
 r=A.b([r,o,n,A.bR(B.zM,q.a.e.h(0,m)==="Admin"?new A.ar5(q,a):null,s)],t.p)
 if(q.a.e.h(0,m)==="Admin")r.push(A.bR(B.W9,new A.ar6(q,a),s))
-if(q.a.e.h(0,m)==="Admin")r.push(A.bR(B.Vp,new A.ar7(q,a),s))
+if(q.a.e.h(0,m)==="Admin")r.push(A.bR(B.Vq,new A.ar7(q,a),s))
 return new A.b_(B.aS,A.v9(B.c0,r,20,20),null)},
 $S:579}
 A.ar2.prototype={
@@ -90931,8 +90931,8 @@ B.Tk=new A.l(!0,null,null,null,null,null,18,null,null,null,null,null,null,null,n
 B.bI=new A.lm(2,"center")
 B.VA=new A.a9("No hay propinas para la semana seleccionada",null,B.Tk,B.bI,null,null,null,null,null,null)
 B.CR=new A.dU(B.N,null,null,B.VA,null)
-B.Vo=new A.a9("Error en la carga de datos.",null,null,null,null,null,null,null,null,null)
-B.m9=new A.dU(B.N,null,null,B.Vo,null)
+B.Vp=new A.a9("Error en la carga de datos.",null,null,null,null,null,null,null,null,null)
+B.m9=new A.dU(B.N,null,null,B.Vp,null)
 B.VF=new A.a9("Lista de usuarios online aqu\xed",null,null,null,null,null,null,null,null,null)
 B.CS=new A.dU(B.N,null,null,B.VF,null)
 B.Ww=new A.a9("No hay movimientos registrados para esta fecha.",null,null,null,null,null,null,null,null,null)
@@ -90956,8 +90956,8 @@ B.zO=new A.a9("Total Propina:",null,B.T1,null,null,null,null,null,null,null)
 B.IL=A.b(s([B.zO]),t.p)
 B.Ek=new A.xz(B.az,B.z,B.R,B.X,null,B.c_,null,0,B.IL,null)
 B.CW=new A.dU(B.N,null,null,B.Ek,null)
-B.Vm=new A.a9("No se encontraron empleados.",null,null,null,null,null,null,null,null,null)
-B.CX=new A.dU(B.N,null,null,B.Vm,null)
+B.Vn=new A.a9("No se encontraron empleados.",null,null,null,null,null,null,null,null,null)
+B.CX=new A.dU(B.N,null,null,B.Vn,null)
 B.WA=new A.a9("No hay tareas para mostrar.",null,null,null,null,null,null,null,null,null)
 B.CY=new A.dU(B.N,null,null,B.WA,null)
 B.VO=new A.a9("No hay propinas registradas.",null,null,null,null,null,null,null,null,null)
@@ -91621,8 +91621,8 @@ B.kb=new A.hc(6,"scrollLockModifier")
 B.kc=new A.hc(7,"functionModifier")
 B.uk=new A.hc(8,"symbolModifier")
 B.oa=A.b(s([B.dJ,B.dK,B.dL,B.dM,B.k9,B.ka,B.kb,B.kc,B.uk]),A.aj("A<hc>"))
-B.Vj=new A.a9("Ma\xf1ana",null,null,null,null,null,null,null,null,null)
-B.F1=new A.eB("ma\xf1ana",B.Vj,B.dl,null,t.b7)
+B.Vk=new A.a9("Ma\xf1ana",null,null,null,null,null,null,null,null,null)
+B.F1=new A.eB("ma\xf1ana",B.Vk,B.dl,null,t.b7)
 B.Wp=new A.a9("Noche",null,null,null,null,null,null,null,null,null)
 B.F0=new A.eB("noche",B.Wp,B.dl,null,t.b7)
 B.ob=A.b(s([B.F1,B.F0]),A.aj("A<eB<k>>"))
@@ -93062,8 +93062,8 @@ B.Wu=new A.a9("Propina de admin marcada como pagada",null,null,null,null,null,nu
 B.PT=new A.cq(B.Wu,null,null,null,null,null,null,null,null,null,null,null,null,B.P,null,null,null,B.l,null)
 B.Wf=new A.a9("Tarea agregada con \xe9xito",null,null,null,null,null,null,null,null,null)
 B.PU=new A.cq(B.Wf,null,null,null,null,null,null,null,null,null,null,null,null,B.P,null,null,null,B.l,null)
-B.Vq=new A.a9("Error al cargar empleados",null,null,null,null,null,null,null,null,null)
-B.zk=new A.cq(B.Vq,null,null,null,null,null,null,null,null,null,null,null,null,B.P,null,null,null,B.l,null)
+B.Vr=new A.a9("Error al cargar empleados",null,null,null,null,null,null,null,null,null)
+B.zk=new A.cq(B.Vr,null,null,null,null,null,null,null,null,null,null,null,null,B.P,null,null,null,B.l,null)
 B.VG=new A.a9("Todas las propinas han sido marcadas como no pagadas.",null,null,null,null,null,null,null,null,null)
 B.PV=new A.cq(B.VG,null,null,null,null,null,null,null,null,null,null,null,null,B.P,null,null,null,B.l,null)
 B.VC=new A.a9("El importe debe ser un n\xfamero v\xe1lido mayor que 0",null,null,null,null,null,null,null,null,null)
@@ -93458,16 +93458,16 @@ B.Vf=new A.a9("Hay un descuadre en el conteo. Por favor, vuelve a contar antes d
 B.Vg=new A.a9("Configuraci\xf3n",null,null,null,null,null,null,null,null,null)
 B.zI=new A.a9("Propinas",null,null,null,null,null,null,null,null,null)
 B.Vi=new A.a9("Salida Dinero Caja",null,null,null,null,null,null,null,null,null)
+B.Vj=new A.a9("Seleccione Usuario Version 6 de enero",null,null,null,null,null,null,null,null,null)
 B.zJ=new A.a9("Propina en Tarjeta de Cr\xe9dito:",null,B.dd,null,null,null,null,null,null,null)
-B.Vk=new A.a9("BETA Agregar Tarea",null,null,null,null,null,null,null,null,null)
-B.Vl=new A.a9("Confirmar Pago",null,null,null,null,null,null,null,null,null)
+B.Vl=new A.a9("BETA Agregar Tarea",null,null,null,null,null,null,null,null,null)
+B.Vm=new A.a9("Confirmar Pago",null,null,null,null,null,null,null,null,null)
 B.zK=new A.a9("Seleccionar Turno:",null,B.dd,null,null,null,null,null,null,null)
 B.zL=new A.a9("Seleccionar Empleados:",null,B.dd,null,null,null,null,null,null,null)
 B.Ss=new A.l(!0,B.k,null,null,null,null,18,B.ba,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
-B.Vn=new A.a9("Usuarios Online",null,B.Ss,null,null,null,null,null,null,null)
-B.Vp=new A.a9("Pantalla Admin2",null,null,B.bI,null,null,null,null,null,null)
-B.Vr=new A.a9("A\xf1adir Propina",null,null,null,null,null,null,null,null,null)
-B.Vs=new A.a9("Seleccione Usuario",null,null,null,null,null,null,null,null,null)
+B.Vo=new A.a9("Usuarios Online",null,B.Ss,null,null,null,null,null,null,null)
+B.Vq=new A.a9("Pantalla Admin2",null,null,B.bI,null,null,null,null,null,null)
+B.Vs=new A.a9("A\xf1adir Propina",null,null,null,null,null,null,null,null,null)
 B.Vt=new A.a9("Eliminar",null,null,null,null,null,null,null,null,null)
 B.Vu=new A.a9("BETA Tareas",null,null,null,null,null,null,null,null,null)
 B.Vv=new A.a9("Men\xfa Principal",null,null,null,null,null,null,null,null,null)
