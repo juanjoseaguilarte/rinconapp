@@ -147,15 +147,18 @@ class _HomeScreenState extends State<HomeScreen> {
         appBar: AppBar(
           title: const Text('Seleccione Usuario Version 6 de enero'),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: EmployeeSelectionWidget(
-            admins: _admins,
-            encargados: _encargados,
-            salaEmployees: _salaEmployees,
-            cocinaEmployees: _cocinaEmployees,
-            onTapEmployee: _showPinDialog,
-            pendingTasks: _pendingTasks,
+        body: SingleChildScrollView(
+          // Permite el scroll
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: EmployeeSelectionWidget(
+              admins: _admins,
+              encargados: _encargados,
+              salaEmployees: _salaEmployees,
+              cocinaEmployees: _cocinaEmployees,
+              onTapEmployee: _showPinDialog,
+              pendingTasks: _pendingTasks,
+            ),
           ),
         ),
       );
