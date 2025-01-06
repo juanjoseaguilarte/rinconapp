@@ -25,23 +25,31 @@ class IndividualTipPayScreen extends StatelessWidget {
       final tips = await tipRepository.fetchTips();
 
       for (var tip in tips) {
-        if (tip.employeePayments.containsKey(employeeId)) {
-          final updatedPayments = Map.of(tip.employeePayments);
+        final updatedPayments = Map.of(tip.employeePayments);
 
-          if (!(updatedPayments[employeeId]!['isDeleted'] ?? false)) {
-            updatedPayments[employeeId]!['isDeleted'] = true;
-
-            final updatedTip = tip.copyWith(employeePayments: updatedPayments);
-            await tipRepository.updateTip(updatedTip);
+        // Marcar al Admin como pagado
+        if (updatedPayments.containsKey('admin')) {
+          if (!(updatedPayments['admin']?['isDeleted'] ?? false)) {
+            updatedPayments['admin']?['isDeleted'] = true;
           }
         }
+
+        // Marcar al empleado como pagado
+        if (updatedPayments.containsKey(employeeId)) {
+          if (!(updatedPayments[employeeId]!['isDeleted'] ?? false)) {
+            updatedPayments[employeeId]!['isDeleted'] = true;
+          }
+        }
+
+        final updatedTip = tip.copyWith(employeePayments: updatedPayments);
+        await tipRepository.updateTip(updatedTip);
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Propina pagada exitosamente a $employeeName')),
       );
 
-      reloadData(); // Recargar datos al finalizar
+      reloadData();
       Navigator.popUntil(context, (route) => route.isFirst);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

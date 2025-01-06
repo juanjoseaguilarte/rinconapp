@@ -94,20 +94,20 @@ class _TipPayScreenState extends State<TipPayScreen> {
         return tipDate != null &&
             tipDate
                 .isAfter(startOfMonday.subtract(const Duration(seconds: 1))) &&
-            tipDate.isBefore(endOfSunday.add(const Duration(seconds: 1))) &&
-            !tip.isDeleted;
+            tipDate.isBefore(endOfSunday.add(const Duration(seconds: 1)));
       }).toList();
 
       final Map<String, double> employeeTotals = {};
       for (var tip in weeklyTips) {
-        // Incluir `adminShare` para el administrador logueado
-        if (loggedUserId == adminId) {
+        // Calcular propinas del administrador basadas en isDeleted
+        if (loggedUserId == adminId && !tip.isDeleted) {
           employeeTotals[adminId] =
               (employeeTotals[adminId] ?? 0) + tip.adminShare;
         }
 
+        // Calcular propinas de camareros ignorando isDeleted
         tip.employeePayments.forEach((employeeId, paymentDetails) {
-          if (!(paymentDetails['isDeleted'] ?? false)) {
+          if (employeeId != adminId && !(paymentDetails['isDeleted'])) {
             final cash = (paymentDetails['cash'] as num?)?.toDouble() ?? 0.0;
             final card = (paymentDetails['card'] as num?)?.toDouble() ?? 0.0;
             employeeTotals[employeeId] =
@@ -132,62 +132,6 @@ class _TipPayScreenState extends State<TipPayScreen> {
         );
       }
     }
-  }
-
-  Future<void> _payAllPendingTipsInSelectedWeek() async {
-    try {
-      if (_selectedMonday == null) return;
-
-      final monday = _selectedMonday!;
-      final sunday = monday.add(const Duration(days: 6));
-      final startOfMonday = DateTime(monday.year, monday.month, monday.day);
-      final endOfSunday =
-          DateTime(sunday.year, sunday.month, sunday.day, 23, 59, 59);
-
-      final tips = await widget.tipRepository.fetchTips();
-
-      for (var tip in tips) {
-        if (tip.date
-                .isAfter(startOfMonday.subtract(const Duration(seconds: 1))) &&
-            tip.date.isBefore(endOfSunday.add(const Duration(seconds: 1))) &&
-            !tip.isDeleted) {
-          tip.employeePayments.forEach((employeeId, paymentDetails) {
-            if (!(paymentDetails['isDeleted'] ?? false)) {
-              paymentDetails['isDeleted'] = true;
-            }
-          });
-
-          // Actualizar la propina como pagada
-          final updatedTip =
-              tip.copyWith(employeePayments: tip.employeePayments);
-          await widget.tipRepository.updateTip(updatedTip);
-        }
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text(
-                'Propinas de la semana seleccionada pagadas automáticamente.')),
-      );
-
-      // Limpiar las propinas pendientes
-      setState(() {
-        _employeeTips.clear();
-      });
-    } catch (e) {
-      print('Error al pagar propinas automáticamente: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Error al pagar propinas automáticamente')),
-      );
-    }
-  }
-
-  @override
-  void dispose() {
-    // Pagar las propinas automáticamente al salir de la pantalla para la semana seleccionada
-    _payAllPendingTipsInSelectedWeek();
-    super.dispose();
   }
 
   Future<void> _payTipForEmployee(String employeeId) async {
@@ -225,20 +169,15 @@ class _TipPayScreenState extends State<TipPayScreen> {
 
   Future<void> markAllTipsAsUnpaid() async {
     try {
-      // Obtener todas las propinas desde el repositorio
       final tips = await widget.tipRepository.fetchTips();
 
       for (var tip in tips) {
-        // Recorrer los pagos de empleados y marcar todos como no pagados
         final updatedPayments = Map.of(tip.employeePayments);
         updatedPayments.forEach((employeeId, paymentDetails) {
-          paymentDetails['isDeleted'] = false; // Marcar como no pagado
+          paymentDetails['isDeleted'] = false;
         });
 
-        // Crear una nueva copia de la propina con los cambios
         final updatedTip = tip.copyWith(employeePayments: updatedPayments);
-
-        // Actualizar la propina en el repositorio
         await widget.tipRepository.updateTip(updatedTip);
       }
 
@@ -277,11 +216,11 @@ class _TipPayScreenState extends State<TipPayScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (widget.loggedUser['role'] == "Admin") 
-            ElevatedButton(
-              onPressed: markAllTipsAsUnpaid,
-              child: const Text('Restablecer Propinas'),
-            ),
+            if (widget.loggedUser['role'] == "Admin")
+              ElevatedButton(
+                onPressed: markAllTipsAsUnpaid,
+                child: const Text('Restablecer Propinas'),
+              ),
             if (startDate != null && endDate != null)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -316,7 +255,9 @@ class _TipPayScreenState extends State<TipPayScreen> {
                         title: Text('Empleado: $employeeName'),
                         subtitle: Text('Total: €${amount.toStringAsFixed(2)}'),
                         trailing: ElevatedButton(
-                          onPressed: () => _payTipForEmployee(employeeId),
+                          onPressed: _currentUserRole == 'Admin'
+                              ? () => _payTipForEmployee(employeeId)
+                              : null, // Deshabilitar si no es Admin
                           child: const Text('Pagar'),
                         ),
                       ),

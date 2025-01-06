@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_propinas/employee/application/services/employee_service.dart';
 import 'package:gestion_propinas/tip/domain/repositories/tip_repository.dart';
-import 'package:gestion_propinas/tip/presentation/screens/tip_list_screen.dart';
 
 class TipAdminScreen extends StatefulWidget {
   final TipRepository tipRepository;
@@ -18,18 +17,18 @@ class TipAdminScreen extends StatefulWidget {
 }
 
 class _TipAdminScreenState extends State<TipAdminScreen> {
-  final String _employeeId = "LWFwojdvqZCuppnPB9Be";
-  double _totalTips = 0.0;
-  Map<DateTime, List<Map<String, dynamic>>> _weeklyTips = {};
+  double _totalPendingTips = 0.0;
+  double _totalAccumulatedTips = 0.0;
+  Map<String, List<Map<String, dynamic>>> _userPendingTips = {};
   Map<String, double> _userTipHistory = {};
-  Map<String, String> _employeeNames = {}; // Mapeo de IDs a nombres
+  Map<String, String> _employeeNames = {};
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _loadEmployeeNames();
-    _loadEmployeeTips();
+    _loadPendingTips();
     _loadTipHistory();
   }
 
@@ -46,58 +45,48 @@ class _TipAdminScreenState extends State<TipAdminScreen> {
     }
   }
 
-  Future<void> _loadEmployeeTips() async {
+  Future<void> _loadPendingTips() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
       final tips = await widget.tipRepository.fetchTips();
+      print('Propinas obtenidas: $tips');
 
-      double total = 0.0;
-      final Map<DateTime, List<Map<String, dynamic>>> weeklyTips = {};
+      double totalPending = 0.0;
+      final Map<String, List<Map<String, dynamic>>> userPendingTips = {};
 
       for (var tip in tips) {
-        if (!tip.employeePayments.containsKey(_employeeId)) continue;
+        tip.employeePayments.forEach((employeeId, paymentDetails) {
+          final isDeleted = paymentDetails['isDeleted'] ?? false;
+          if (!isDeleted) {
+            final cash = (paymentDetails['cash'] as num?)?.toDouble() ?? 0.0;
+            final card = (paymentDetails['card'] as num?)?.toDouble() ?? 0.0;
+            final amount = cash + card;
 
-        final paymentDetails = tip.employeePayments[_employeeId]!;
-        final isDeleted = paymentDetails['isDeleted'] ?? false;
-        final amount = paymentDetails['amount'] ?? 0.0;
+            totalPending += amount;
 
-        // Solo suma las propinas no pagadas al total
-        if (!isDeleted) {
-          total += amount;
-
-          // Agrupar por semana
-          final monday = _getStartOfWeek(tip.date);
-          if (!weeklyTips.containsKey(monday)) {
-            weeklyTips[monday] = [];
+            if (!userPendingTips.containsKey(employeeId)) {
+              userPendingTips[employeeId] = [];
+            }
+            userPendingTips[employeeId]!.add({
+              'tip': tip,
+              'amount': amount,
+            });
           }
-          weeklyTips[monday]!.add({
-            'tip': tip,
-            'amount': amount,
-            'isDeleted': isDeleted,
-          });
-        }
+        });
       }
 
-      // Filtrar semanas con todas las propinas pagadas
-      final filteredWeeklyTips = Map.fromEntries(
-        weeklyTips.entries
-            .where((entry) => entry.value.any((tip) => !tip['isDeleted'])),
-      );
+      print('Propinas agrupadas por usuario: $userPendingTips');
+      print('Total de propinas pendientes: $totalPending');
 
       setState(() {
-        _totalTips = total;
-        _weeklyTips = filteredWeeklyTips;
+        _totalPendingTips = totalPending;
+        _userPendingTips = userPendingTips;
       });
     } catch (e) {
-      print('Error al cargar propinas: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al cargar propinas')),
-        );
-      }
+      print('Error al cargar propinas pendientes: $e');
     } finally {
       setState(() {
         _isLoading = false;
@@ -109,86 +98,29 @@ class _TipAdminScreenState extends State<TipAdminScreen> {
     try {
       final tips = await widget.tipRepository.fetchTips();
 
+      double totalAccumulated = 0.0;
       final Map<String, double> userTipHistory = {};
       for (var tip in tips) {
         tip.employeePayments.forEach((employeeId, paymentDetails) {
-          final amount = paymentDetails['amount'] ?? 0.0;
+          final cash = (paymentDetails['cash'] as num?)?.toDouble() ?? 0.0;
+          final card = (paymentDetails['card'] as num?)?.toDouble() ?? 0.0;
+          final amount = cash + card;
+
+          totalAccumulated += amount;
           userTipHistory[employeeId] =
               (userTipHistory[employeeId] ?? 0) + amount;
         });
       }
 
+      print('Historial acumulado de propinas: $userTipHistory');
+
       setState(() {
+        _totalAccumulatedTips = totalAccumulated;
         _userTipHistory = userTipHistory;
       });
     } catch (e) {
       print('Error al cargar historial de propinas: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al cargar historial')),
-        );
-      }
     }
-  }
-
-  DateTime _getStartOfWeek(DateTime date) {
-    return date.subtract(Duration(days: date.weekday - DateTime.monday));
-  }
-
-  Future<void> _payTip(Map<String, dynamic> tipDetails) async {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirmar Pago'),
-        content: Text(
-            '¿Estás seguro de que deseas pagar esta propina de \$${tipDetails['amount'].toStringAsFixed(2)}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.of(context).pop(); // Cierra el modal
-
-              try {
-                final tip = tipDetails['tip'];
-
-                final updatedPayments =
-                    (tip.employeePayments as Map<dynamic, dynamic>).map(
-                  (key, value) => MapEntry(
-                    key.toString(),
-                    Map<String, dynamic>.from(value as Map<dynamic, dynamic>),
-                  ),
-                );
-
-                updatedPayments[_employeeId]?['isDeleted'] = true;
-
-                final updatedTip =
-                    tip.copyWith(employeePayments: updatedPayments);
-                await widget.tipRepository.updateTip(updatedTip);
-
-                setState(() {
-                  _weeklyTips[_getStartOfWeek(tip.date)]!.remove(tipDetails);
-                  _totalTips -= tipDetails['amount'];
-                });
-
-                scaffoldMessenger.showSnackBar(
-                  SnackBar(content: Text('Pago realizado exitosamente')),
-                );
-              } catch (e) {
-                print('Error al pagar la propina: $e');
-                scaffoldMessenger.showSnackBar(
-                  const SnackBar(content: Text('Error al realizar el pago')),
-                );
-              }
-            },
-            child: const Text('Confirmar'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -197,24 +129,34 @@ class _TipAdminScreenState extends State<TipAdminScreen> {
       appBar: AppBar(
         title: const Text('Propinas por Empleado'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : Column(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Total Propinas Pendientes: €${_totalTips.toStringAsFixed(2)}',
+                    'Total Propinas Pendientes: €${_totalPendingTips.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Total Propinas Acumuladas: €${_totalAccumulatedTips.toStringAsFixed(2)}',
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
                   Expanded(
                     child: ListView(
-                      children: _weeklyTips.entries.map((entry) {
-                        final monday = entry.key;
+                      children: _userPendingTips.entries.map((entry) {
+                        final employeeId = entry.key;
                         final tips = entry.value;
+                        final employeeName =
+                            _employeeNames[employeeId] ?? 'Sin Nombre';
+                        final accumulated =
+                            _userTipHistory[employeeId] ?? 0.0;
 
                         return Card(
                           margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -224,26 +166,20 @@ class _TipAdminScreenState extends State<TipAdminScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Semana: ${monday.year}-${monday.month}-${monday.day} a ${monday.add(const Duration(days: 6)).year}-${monday.add(const Duration(days: 6)).month}-${monday.add(const Duration(days: 6)).day}',
+                                  'Empleado: $employeeName',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                ...tips.map((tipDetails) {
-                                  if (tipDetails['isDeleted'])
-                                    return SizedBox.shrink();
-
-                                  return ListTile(
-                                    title: Text(
-                                      'Propina: €${tipDetails['amount'].toStringAsFixed(2)}',
-                                    ),
-                                    trailing: ElevatedButton(
-                                      onPressed: () => _payTip(tipDetails),
-                                      child: const Text('Pagar'),
-                                    ),
-                                  );
-                                }).toList(),
+                                Text(
+                                  'Propinas Acumuladas: €${accumulated.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                
                               ],
                             ),
                           ),
@@ -251,47 +187,9 @@ class _TipAdminScreenState extends State<TipAdminScreen> {
                       }).toList(),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Historial de Propinas Acumuladas',
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Expanded(
-                    child: ListView(
-                      children: _userTipHistory.entries.map((entry) {
-                        final employeeId = entry.key;
-                        final amount = entry.value;
-                        final employeeName =
-                            _employeeNames[employeeId] ?? 'Sin Nombre';
-                        return ListTile(
-                          title: Text('Empleado: $employeeName'),
-                          subtitle: Text(
-                              'Propinas Acumuladas: €${amount.toStringAsFixed(2)}'),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final tips = await widget.tipRepository.fetchTips();
-                      // Navegar a la pantalla de listado
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => TipListScreen(
-                            tipRepository: widget.tipRepository,
-                            employeeService: widget.employeeService,
-                          ),
-                        ),
-                      );
-                    },
-                    child: const Text('Listado de Propinas'),
-                  ),
                 ],
               ),
-      ),
+            ),
     );
   }
 }

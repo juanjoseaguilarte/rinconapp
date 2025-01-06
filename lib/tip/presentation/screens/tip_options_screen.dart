@@ -3,10 +3,12 @@ import 'package:gestion_propinas/employee/application/services/employee_service.
 import 'package:gestion_propinas/employee/domain/entities/employee.dart';
 import 'package:gestion_propinas/tip/domain/entities/tip.dart';
 import 'package:gestion_propinas/tip/domain/repositories/tip_repository.dart';
+import 'package:gestion_propinas/tip/presentation/screens/admin_pending_tips_screen.dart';
 import 'package:gestion_propinas/tip/presentation/screens/tip_create_screen.dart';
 import 'package:gestion_propinas/tip/presentation/screens/tip_list_screen.dart';
 import 'package:gestion_propinas/tip/presentation/screens/tip_pay_screen.dart';
 import 'package:gestion_propinas/tip/presentation/screens/individual_tip_pay_screen.dart';
+import 'package:gestion_propinas/tip/presentation/screens/tip_admin_screen.dart';
 
 class TipOptionsScreen extends StatefulWidget {
   final EmployeeService employeeService;
@@ -139,9 +141,8 @@ class _TipOptionsScreenState extends State<TipOptionsScreen> {
                                   MaterialPageRoute(
                                     builder: (context) => TipPayScreen(
                                       tipRepository: widget.tipRepository,
-                                      employeeService: widget.employeeService, 
-                                      loggedUser: widget.loggedUser, 
-                                  
+                                      employeeService: widget.employeeService,
+                                      loggedUser: widget.loggedUser,
                                     ),
                                   ),
                                 );
@@ -176,6 +177,43 @@ class _TipOptionsScreenState extends State<TipOptionsScreen> {
                   style: buttonStyle,
                   child: const Text('Listado de Propinas'),
                 ),
+                if (widget.loggedUser['role'] == 'Admin') // Solo para Admin
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TipAdminScreen(
+                            tipRepository: widget.tipRepository,
+                            employeeService: widget.employeeService,
+                          ),
+                        ),
+                      );
+                    },
+                    style: buttonStyle,
+                    child: const Text(
+                      'Pantalla Admin',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  if (widget.loggedUser['role'] == 'Admin') // Solo para Admin
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AdminPendingTipsScreen(
+                            tipRepository: widget.tipRepository,
+                          ),
+                        ),
+                      );
+                    },
+                    style: buttonStyle,
+                    child: const Text(
+                      'Pantalla Admin2',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
               ],
             ),
           );

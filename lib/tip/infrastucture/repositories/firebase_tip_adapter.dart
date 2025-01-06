@@ -17,9 +17,15 @@ class FirebaseTipAdapter implements TipRepository {
 
   @override
   Future<List<Tip>> fetchTips() async {
-    final snapshot =
-        await _db.collection('tips').get(); // No excluyas `isDeleted`
-    return snapshot.docs.map((doc) => Tip.fromMap(doc.id, doc.data())).toList();
+    try {
+      final snapshot = await _db.collection('tips').get();
+      return snapshot.docs.map((doc) {
+        return Tip.fromMap(doc.id, doc.data() as Map<String, dynamic>);
+      }).toList();
+    } catch (e) {
+      print('Error al obtener las propinas: $e');
+      return [];
+    }
   }
 
   @override
