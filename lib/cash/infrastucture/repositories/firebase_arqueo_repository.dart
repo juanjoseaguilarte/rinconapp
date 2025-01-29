@@ -1,5 +1,6 @@
 // lib/infrastructure/repositories/firebase_arqueo_repository.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:gestion_propinas/cash/domain/entities/arqueo_record.dart';
 import 'package:gestion_propinas/cash/domain/repositories/arqueo_repository.dart';
 
 class FirebaseArqueoRepository implements ArqueoRepository {
@@ -44,6 +45,23 @@ class FirebaseArqueoRepository implements ArqueoRepository {
         .update({'updatedAt': date.toIso8601String()});
   }
 
+  @override
+  Future<void> addArqueoRecord(double amount, String userId) async {
+    await firestore.collection('arqueos').add({
+      'amount': amount,
+      'userId': userId,
+      'date': FieldValue.serverTimestamp(),
+    });
+    setInitialAmount(amount);
+  }
 
-  
+  @override
+  Future<List<ArqueoRecord>> getArqueoHistory() async {
+    final snapshot = await firestore
+        .collection('arqueos')
+        .orderBy('date', descending: true)
+        .get();
+
+    return snapshot.docs.map((doc) => ArqueoRecord.fromFirestore(doc)).toList();
+  }
 }

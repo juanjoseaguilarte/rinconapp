@@ -145,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_loggedInUser == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Seleccione Usuario Version 6 de enero'),
+          title: const Text('Seleccione Usuario Version 29 de enero'),
         ),
         body: SingleChildScrollView(
           // Permite el scroll

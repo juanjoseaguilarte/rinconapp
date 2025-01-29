@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_propinas/cash/domain/repositories/arqueo_repository.dart';
 import 'package:gestion_propinas/cash/domain/repositories/cash_transation_repository.dart';
+import 'package:gestion_propinas/cash/presentation/screens/arqueo_history_screen.dart';
 import 'package:gestion_propinas/cash/presentation/screens/movements_list_screen.dart';
 
 class CashCountScreen extends StatefulWidget {
@@ -58,6 +59,10 @@ class _CashCountScreenState extends State<CashCountScreen> {
   Map<String, FocusNode> packFocusNodes = {};
 
   bool get isAdmin => widget.loggedUser['role'] == 'Admin';
+  bool get isAdminOrManager {
+    final role = widget.loggedUser['role'];
+    return role == 'Admin' || role == 'Encargado';
+  }
 
   @override
   void initState() {
@@ -139,13 +144,13 @@ class _CashCountScreenState extends State<CashCountScreen> {
   void _confirmCount() async {
     final countedAmount = getCountedTotal();
     final difference = countedAmount - widget.expectedAmount;
+    final userId = widget.loggedUser['id']; // ID del usuario actual
 
     if (difference == 0) {
-      await widget.arqueoRepository.setInitialAmount(countedAmount);
-      await widget.arqueoRepository.setLastArqueoDate(DateTime.now());
+      await widget.arqueoRepository.addArqueoRecord(countedAmount, userId);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Arqueo confirmado.')),
+        const SnackBar(content: Text('Arqueo guardado correctamente.')),
       );
       Navigator.pop(context);
     } else {
@@ -162,9 +167,8 @@ class _CashCountScreenState extends State<CashCountScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
-                await widget.arqueoRepository.setInitialAmount(countedAmount);
-                await widget.arqueoRepository.setLastArqueoDate(DateTime.now());
-
+                await widget.arqueoRepository
+                    .addArqueoRecord(countedAmount, userId);
                 Navigator.pop(context);
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -247,38 +251,50 @@ class _CashCountScreenState extends State<CashCountScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            if (isAdmin) ...[
-              Text(
-                'Cantidad esperada en caja: ${widget.expectedAmount.toStringAsFixed(2)} €',
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-            ],
-            ...denominations.keys.map(_buildDenominationRow).toList(),
-            const SizedBox(height: 16),
+        child: Column(children: [
+          if (isAdmin) ...[
             Text(
-              'Contado: ${counted.toStringAsFixed(2)} €',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-              ),
+              'Cantidad esperada en caja: ${widget.expectedAmount.toStringAsFixed(2)} €',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _confirmCount,
-              child: const Text('Confirmar Conteo'),
+            const SizedBox(height: 16),
+          ],
+          ...denominations.keys.map(_buildDenominationRow).toList(),
+          const SizedBox(height: 16),
+          Text(
+            'Contado: ${counted.toStringAsFixed(2)} €',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.green,
             ),
-            const SizedBox(height: 20),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: _confirmCount,
+            child: const Text('Confirmar Conteo'),
+          ),
+          const SizedBox(height: 20),
+          if (isAdminOrManager) ...[
             ElevatedButton(
               onPressed: _showMovements,
               child: const Text('Ver Movimientos'),
             ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ArqueoHistoryScreen(
+                      arqueoRepository: widget.arqueoRepository,
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Ver Historial de Arqueos'),
+            ),
           ],
-        ),
+        ]),
       ),
     );
   }
