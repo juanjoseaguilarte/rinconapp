@@ -275,7 +275,7 @@ class _CashCountScreenState extends State<CashCountScreen> {
             child: const Text('Confirmar Conteo'),
           ),
           const SizedBox(height: 20),
-          if (isAdminOrManager) ...[
+          if (isAdmin) ...[
             ElevatedButton(
               onPressed: _showMovements,
               child: const Text('Ver Movimientos'),

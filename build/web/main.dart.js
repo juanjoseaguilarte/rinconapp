@@ -84006,20 +84006,19 @@ a3a(a){var s=this,r=null,q=s.e.ar(a),p=A.b([A.d0(A.au(a,r,r,r,B.ft,r,r,r),r,50),
 if(q)p.push(A.fs(A.dM(!0,B.ad,!1,r,!0,B.l,r,A.ef(),s.r.h(0,a),r,r,r,r,r,2,B.GE,B.w,!0,r,!0,r,!1,s.x.h(0,a),B.ae,r,r,r,B.ci,r,r,r,1,r,r,!1,"\u2022",r,r,r,r,r,!1,r,!1,r,!0,r,B.av,r,r,B.ab,B.a7,r,r,r,r,r,r,r,B.Q,r,B.aw,r,r,r,r),1))
 else p.push(B.FP)
 return new A.b_(B.cw,A.hj(p,B.X,B.z,B.R),r)},
-G(a){var s,r,q,p=this,o=null,n=p.Jp(),m=A.dq(o,o,B.Wz),l=t.p,k=A.b([],l)
-if(p.a.e.h(0,"role")==="Admin")B.b.Y(k,A.b([A.au("Cantidad esperada en caja: "+B.c.a4(p.a.c,2)+" \u20ac",o,o,o,B.ic,o,o,o),B.bG],l))
-s=p.d
+G(a){var s,r,q=this,p=null,o=q.Jp(),n=A.dq(p,p,B.Wz),m=t.p,l=A.b([],m)
+if(q.a.e.h(0,"role")==="Admin")B.b.Y(l,A.b([A.au("Cantidad esperada en caja: "+B.c.a4(q.a.c,2)+" \u20ac",p,p,p,B.ic,p,p,p),B.bG],m))
+s=q.d
 r=A.i(s).i("b3<1>")
-r=A.mK(new A.b3(s,r),p.ga39(),r.i("r.E"),t.l7)
-B.b.Y(k,A.T(r,!0,A.i(r).i("r.E")))
-k.push(B.bG)
-k.push(A.au("Contado: "+B.c.a4(n,2)+" \u20ac",o,o,o,B.S1,o,o,o))
-k.push(B.a4)
-k.push(A.bP(B.Wm,p.ga4j(),o))
-k.push(B.a4)
-q=p.a.e.h(0,"role")
-if(q==="Admin"||q==="Encargado")B.b.Y(k,A.b([A.bP(B.Wd,p.gafi(),o),A.bP(B.Wf,new A.ahP(p,a),o)],l))
-return A.dw(m,A.Nx(A.cf(k,B.X,B.z,B.R),B.aS),o,o)}}
+r=A.mK(new A.b3(s,r),q.ga39(),r.i("r.E"),t.l7)
+B.b.Y(l,A.T(r,!0,A.i(r).i("r.E")))
+l.push(B.bG)
+l.push(A.au("Contado: "+B.c.a4(o,2)+" \u20ac",p,p,p,B.S1,p,p,p))
+l.push(B.a4)
+l.push(A.bP(B.Wm,q.ga4j(),p))
+l.push(B.a4)
+if(q.a.e.h(0,"role")==="Admin")B.b.Y(l,A.b([A.bP(B.Wd,q.gafi(),p),A.bP(B.Wf,new A.ahP(q,a),p)],m))
+return A.dw(n,A.Nx(A.cf(l,B.X,B.z,B.R),B.aS),p,p)}}
 A.ahT.prototype={
 $0(){if(this.a.gbu()){var s=this.b
 if(s.a.a==="0")s.hI(B.e1)}else{s=this.b
@@ -93605,7 +93604,7 @@ B.W_=new A.a8("Propinas por Empleado",null,null,null,null,null,null,null,null,nu
 B.W0=new A.a8("Pagar Todas Las Propinas",null,null,null,null,null,null,null,null,null)
 B.W3=new A.a8("Cerrar",null,null,null,null,null,null,null,null,null)
 B.W4=new A.a8("A\xf1adir Propina",null,null,B.bJ,null,null,null,null,null,null)
-B.W6=new A.a8("Seleccione Usuario Version 29 de enero",null,null,null,null,null,null,null,null,null)
+B.W6=new A.a8("Seleccione Usuario Version 30 de enero",null,null,null,null,null,null,null,null,null)
 B.W7=new A.a8("Seleccionar Fecha",null,null,null,null,null,null,null,null,null)
 B.Wa=new A.a8("Restablecer Propinas",null,null,null,null,null,null,null,null,null)
 B.Wc=new A.a8("Cobro Mesas Cashlogy Bloqueado",null,null,null,null,null,null,null,null,null)
