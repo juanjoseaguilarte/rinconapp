@@ -1,16 +1,16 @@
-import 'package:gestion_propinas/employee/application/usecases/add_employee.dart';
-import 'package:gestion_propinas/employee/application/usecases/delete_employee.dart';
-import 'package:gestion_propinas/employee/application/usecases/fetch_employees.dart';
-import 'package:gestion_propinas/employee/application/usecases/get_employee_by_pin.dart';
-import 'package:gestion_propinas/employee/application/usecases/update_employee.dart';
+import 'package:gestion_propinas/employee/application/usecases/add_employee_use_case.dart';
+import 'package:gestion_propinas/employee/application/usecases/delete_employee_use_case.dart';
+import 'package:gestion_propinas/employee/application/usecases/fetch_employees_use_case.dart';
+import 'package:gestion_propinas/employee/application/usecases/get_employee_by_pin_use_case.dart';
+import 'package:gestion_propinas/employee/application/usecases/update_employee_use_case.dart';
 import 'package:gestion_propinas/employee/domain/entities/employee.dart';
 
 class EmployeeService {
-  final FetchEmployees fetchEmployeesUseCase;
-  final AddEmployee addEmployeeUseCase;
-  final GetEmployeeByPin getEmployeeByPinUseCase;
-  final UpdateEmployee updateEmployeeUseCase;
-  final DeleteEmployee deleteEmployeeUseCase;
+  final FetchEmployeesUseCase fetchEmployeesUseCase;
+  final AddEmployeeUseCase addEmployeeUseCase;
+  final GetEmployeeByPinUseCase getEmployeeByPinUseCase;
+  final UpdateEmployeeUseCase updateEmployeeUseCase;
+  final DeleteEmployeeUseCase deleteEmployeeUseCase;
 
   EmployeeService({
     required this.fetchEmployeesUseCase,

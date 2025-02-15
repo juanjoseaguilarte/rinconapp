@@ -1,5 +1,3 @@
-
-
 import 'package:gestion_propinas/cash/domain/entities/arqueo_record.dart';
 
 abstract class ArqueoRepository {
@@ -7,6 +5,6 @@ abstract class ArqueoRepository {
   Future<void> setInitialAmount(double amount);
   Future<DateTime?> getLastArqueoDate();
   Future<void> setLastArqueoDate(DateTime date);
-  Future<void> addArqueoRecord(double amount, String userId);
+  Future<void> addArqueoRecord(double expectedAmount, double countedAmount, String userId);
   Future<List<ArqueoRecord>> getArqueoHistory();
 }

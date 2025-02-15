@@ -6,7 +6,8 @@ import 'package:gestion_propinas/cash/domain/repositories/arqueo_repository.dart
 class ArqueoHistoryScreen extends StatefulWidget {
   final ArqueoRepository arqueoRepository;
 
-  const ArqueoHistoryScreen({Key? key, required this.arqueoRepository}) : super(key: key);
+  const ArqueoHistoryScreen({Key? key, required this.arqueoRepository})
+      : super(key: key);
 
   @override
   _ArqueoHistoryScreenState createState() => _ArqueoHistoryScreenState();
@@ -28,6 +29,11 @@ class _ArqueoHistoryScreenState extends State<ArqueoHistoryScreen> {
       body: FutureBuilder<List<ArqueoRecord>>(
         future: _arqueoHistory,
         builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          }
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -36,10 +42,12 @@ class _ArqueoHistoryScreenState extends State<ArqueoHistoryScreen> {
             itemCount: arqueos.length,
             itemBuilder: (context, index) {
               final arqueo = arqueos[index];
+              final difference = arqueo.countedAmount - arqueo.expectedAmount;
               return ListTile(
-                title: Text('${arqueo.amount.toStringAsFixed(2)} €'),
+                title: Text(
+                    'Esperado: ${arqueo.expectedAmount.toStringAsFixed(2)} € - Contado: ${arqueo.countedAmount.toStringAsFixed(2)} €'),
                 subtitle: Text(
-                  'Usuario: ${arqueo.userId} - Fecha: ${DateFormat('dd/MM/yyyy HH:mm').format(arqueo.date)}',
+                  'Diferencia: ${difference.toStringAsFixed(2)} € - Usuario: ${arqueo.userId} - Fecha: ${DateFormat('dd/MM/yyyy HH:mm').format(arqueo.date)}',
                 ),
               );
             },

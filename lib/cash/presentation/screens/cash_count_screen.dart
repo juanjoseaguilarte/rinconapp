@@ -147,7 +147,8 @@ class _CashCountScreenState extends State<CashCountScreen> {
     final userId = widget.loggedUser['id']; // ID del usuario actual
 
     if (difference == 0) {
-      await widget.arqueoRepository.addArqueoRecord(countedAmount, userId);
+      await widget.arqueoRepository
+          .addArqueoRecord(widget.expectedAmount, countedAmount, userId);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Arqueo guardado correctamente.')),
@@ -167,8 +168,8 @@ class _CashCountScreenState extends State<CashCountScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
-                await widget.arqueoRepository
-                    .addArqueoRecord(countedAmount, userId);
+                await widget.arqueoRepository.addArqueoRecord(
+                    widget.expectedAmount, countedAmount, userId);
                 Navigator.pop(context);
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(

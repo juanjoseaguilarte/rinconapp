@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:gestion_propinas/cash/infrastucture/repositories/firebase_arqueo_repository.dart';
-import 'package:gestion_propinas/cash/infrastucture/repositories/firebase_cash_adapter.dart';
+import 'package:gestion_propinas/cash/infrastructure/repositories/firebase_arqueo_repository.dart';
+import 'package:gestion_propinas/cash/infrastructure/repositories/firebase_cash_adapter.dart';
 import 'package:gestion_propinas/cash/presentation/screens/cash_count_screen.dart';
 import 'package:gestion_propinas/cash/presentation/screens/cash_entry_form_screen.dart';
 import 'package:gestion_propinas/cash/presentation/screens/movements_list_screen.dart';

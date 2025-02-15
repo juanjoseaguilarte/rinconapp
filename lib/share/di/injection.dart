@@ -2,11 +2,11 @@ import 'package:gestion_propinas/tip/domain/repositories/tip_repository.dart';
 import 'package:gestion_propinas/tip/infrastucture/repositories/firebase_tip_adapter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:gestion_propinas/employee/application/services/employee_service.dart';
-import 'package:gestion_propinas/employee/application/usecases/add_employee.dart';
-import 'package:gestion_propinas/employee/application/usecases/delete_employee.dart';
-import 'package:gestion_propinas/employee/application/usecases/fetch_employees.dart';
-import 'package:gestion_propinas/employee/application/usecases/get_employee_by_pin.dart';
-import 'package:gestion_propinas/employee/application/usecases/update_employee.dart';
+import 'package:gestion_propinas/employee/application/usecases/add_employee_use_case.dart';
+import 'package:gestion_propinas/employee/application/usecases/delete_employee_use_case.dart';
+import 'package:gestion_propinas/employee/application/usecases/fetch_employees_use_case.dart';
+import 'package:gestion_propinas/employee/application/usecases/get_employee_by_pin_use_case.dart';
+import 'package:gestion_propinas/employee/application/usecases/update_employee_use_case.dart';
 import 'package:gestion_propinas/employee/infrastructure/repositories/firebase_employee_adapter.dart';
 import 'package:gestion_propinas/tip/application/services/tip_service.dart';
 import 'package:gestion_propinas/tip/application/usecases/add_tip.dart';
@@ -33,12 +33,14 @@ void setupDependencies() {
 
   // Servicios
   getIt.registerLazySingleton(() => EmployeeService(
-        fetchEmployeesUseCase: FetchEmployees(getIt<FirebaseEmployeeAdapter>()),
-        addEmployeeUseCase: AddEmployee(getIt<FirebaseEmployeeAdapter>()),
+        fetchEmployeesUseCase: FetchEmployeesUseCase(getIt<FirebaseEmployeeAdapter>()),
+        addEmployeeUseCase: AddEmployeeUseCase(getIt<FirebaseEmployeeAdapter>()),
         getEmployeeByPinUseCase:
-            GetEmployeeByPin(getIt<FirebaseEmployeeAdapter>()),
-        updateEmployeeUseCase: UpdateEmployee(getIt<FirebaseEmployeeAdapter>()),
-        deleteEmployeeUseCase: DeleteEmployee(getIt<FirebaseEmployeeAdapter>()),
+            GetEmployeeByPinUseCase(getIt<FirebaseEmployeeAdapter>()),
+        updateEmployeeUseCase:
+            UpdateEmployeeUseCase(getIt<FirebaseEmployeeAdapter>()),
+        deleteEmployeeUseCase:
+            DeleteEmployeeUseCase(getIt<FirebaseEmployeeAdapter>()),
       ));
 
   getIt.registerLazySingleton(() => TipService(

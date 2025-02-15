@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:gestion_propinas/cash/infrastucture/repositories/firebase_arqueo_repository.dart';
-import 'package:gestion_propinas/cash/infrastucture/repositories/firebase_cash_adapter.dart';
+import 'package:gestion_propinas/cash/infrastructure/repositories/firebase_arqueo_repository.dart';
+import 'package:gestion_propinas/cash/infrastructure/repositories/firebase_cash_adapter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:gestion_propinas/employee/application/services/employee_service.dart';
 import 'package:gestion_propinas/task/application/services/task_service.dart';
@@ -145,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_loggedInUser == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Seleccione Usuario Version 30 de enero'),
+          title: const Text('Seleccione Usuario Version 15 de febrero'),
         ),
         body: SingleChildScrollView(
           // Permite el scroll
