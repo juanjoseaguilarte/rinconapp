@@ -3,6 +3,7 @@ import 'package:gestion_propinas/cash/domain/repositories/arqueo_repository.dart
 import 'package:gestion_propinas/cash/domain/repositories/cash_transation_repository.dart';
 import 'package:gestion_propinas/cash/presentation/screens/arqueo_history_screen.dart';
 import 'package:gestion_propinas/cash/presentation/screens/movements_list_screen.dart';
+import 'package:gestion_propinas/config/router/app_router.dart';
 
 class CashCountScreen extends StatefulWidget {
   final double expectedAmount;
@@ -281,6 +282,7 @@ class _CashCountScreenState extends State<CashCountScreen> {
               onPressed: _showMovements,
               child: const Text('Ver Movimientos'),
             ),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -288,6 +290,7 @@ class _CashCountScreenState extends State<CashCountScreen> {
                   MaterialPageRoute(
                     builder: (context) => ArqueoHistoryScreen(
                       arqueoRepository: widget.arqueoRepository,
+                      employeeService: employeeService,
                     ),
                   ),
                 );

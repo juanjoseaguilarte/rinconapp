@@ -65,18 +65,6 @@ class _TaskScreenState extends State<TaskScreen> {
   }
 }
 
-  Future<void> _toggleTaskCompletion(Task task) async {
-    final currentStatus = task.assignedToStatus[widget.userId] ?? false;
-
-    try {
-      await widget.updateTaskStatus(task.id, widget.userId, !currentStatus);
-      _loadTasks(); // Recargar tareas después de actualizar
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al actualizar tarea: $e')),
-      );
-    }
-  }
 
   @override
 @override

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:gestion_propinas/config/router/app_router.dart';
 import 'package:gestion_propinas/share/di/injection.dart';
-import 'package:gestion_propinas/home/presentation/screens/home_screen.dart';
 import 'package:gestion_propinas/firebase_options.dart';
 
 void main() async {
