@@ -17,6 +17,7 @@ import 'package:gestion_propinas/task/presentation/screens/task_screen.dart'
 import 'package:gestion_propinas/task/presentation/screens/add_task_screen.dart';
 import 'package:gestion_propinas/home/presentation/widgets/employee_selection_widget.dart';
 import 'package:gestion_propinas/employee/domain/entities/employee.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -140,15 +141,35 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Widget _buildMenuButton(
+      BuildContext context, String title, IconData icon, String routePath) {
+    return ElevatedButton.icon(
+      icon: Icon(icon, size: 40),
+      label: Text(title, textAlign: TextAlign.center),
+      onPressed: _loggedInUser == null
+          ? null
+          : () {
+              context.push(routePath, extra: _loggedInUser);
+            },
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(150, 100),
+        padding: const EdgeInsets.all(10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        textStyle: const TextStyle(fontSize: 16),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_loggedInUser == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Seleccione Usuario Version 15 de febrero'),
+          title: const Text('Seleccione Usuario'),
         ),
         body: SingleChildScrollView(
-          // Permite el scroll
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: EmployeeSelectionWidget(
@@ -166,154 +187,36 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Bienvenido ${_loggedInUser!['name']}'),
+        title: Text('Menú Principal - ${_loggedInUser!['name']}'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
+            tooltip: 'Cerrar sesión',
             onPressed: () {
               setState(() {
                 _loggedInUser = null;
+                _logoutTimer?.cancel();
               });
             },
-          ),
+          )
         ],
       ),
-      body: SingleChildScrollView(
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
           children: [
-            ElevatedButton(
-              onPressed: _loggedInUser!['role'] == 'Admin'
-                  ? () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AdminScreen(),
-                        ),
-                      )
-                  : null,
-              child: const Text('Configuración'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TipOptionsScreen(
-                      employeeService: employeeService,
-                      tipRepository: tipRepository,
-                      loggedUser: _loggedInUser!,
-                    ),
-                  ),
-                );
-              },
-              child: const Text('Propinas'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EmployeeScreen(
-                      employeeService: employeeService,
-                    ),
-                  ),
-                );
-              },
-              child: const Text('Empleados'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                final arqueoRepository = FirebaseArqueoRepository(
-                  firestore: FirebaseFirestore.instance,
-                );
-                final transactionRepo = FirebaseCashTransactionRepository(
-                  firestore: FirebaseFirestore.instance,
-                );
-
-                double initialAmount =
-                    await arqueoRepository.getInitialAmount();
-                DateTime? lastArqueoDate =
-                    await arqueoRepository.getLastArqueoDate() ??
-                        DateTime(2000);
-
-                final transactions = await transactionRepo
-                    .fetchTransactionsSince(lastArqueoDate);
-
-                double entradas = 0.0;
-                double salidas = 0.0;
-                for (var t in transactions) {
-                  if (t.type == 'entrada') {
-                    entradas += t.amount;
-                  } else if (t.type == 'salida') {
-                    salidas += t.amount;
-                  }
-                }
-
-                final expectedAmount = initialAmount + entradas - salidas;
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CashMenuScreen(
-                      loggedUser: _loggedInUser!,
-                      expectedAmount: expectedAmount, // Pasa el monto calculado
-                    ),
-                  ),
-                );
-              },
-              child: const Text('Caja'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TaskScreenView.TaskScreen(
-                      userId: _loggedInUser!['id'],
-                      userRole: _loggedInUser!['role'],
-                      taskService: taskService,
-                      loggedInUser: _loggedInUser,
-                      getUserTasks: taskService.getTasksForUser,
-                      updateTaskStatus: taskService.updateTaskStatus,
-                    ),
-                  ),
-                );
-              },
-              child: const Text('BETA Tareas'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddTaskScreen(
-                      fetchEmployees: () async {
-                        final employees =
-                            await employeeService.getAllEmployees();
-                        return employees
-                            .map((e) => {'id': e.id, 'name': e.name})
-                            .toList();
-                      },
-                      addTask: (userIds, title, description) {
-                        return taskService.addTask(
-                          _loggedInUser!['id'],
-                          userIds,
-                          title,
-                          description,
-                        );
-                      },
-                    ),
-                  ),
-                );
-              },
-              child: const Text('BETA Agregar Tarea'),
-            ),
+            _buildMenuButton(context, 'Tareas', Icons.task_alt, '/tasks'),
+            _buildMenuButton(context, 'Caja', Icons.point_of_sale, '/cash'),
+            _buildMenuButton(context, 'Propinas', Icons.attach_money, '/tips'),
+            _buildMenuButton(context, 'Encuestas', Icons.poll, '/surveys'),
+            _buildMenuButton(context, 'Turnos', Icons.schedule, '/shifts'),
+            if (_loggedInUser!['role'] == 'Admin')
+              _buildMenuButton(
+                  context, 'Gestionar Empleados', Icons.people, '/employees'),
           ],
         ),
       ),
