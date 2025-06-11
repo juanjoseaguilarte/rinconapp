@@ -10,5 +10,6 @@ abstract class CashTransactionRepository {
     required DateTime date,
   });
 
-  Future<List<TransactionEntity>> fetchAllTransactions(); // Agrega este método
+  Future<List<TransactionEntity>> fetchAllTransactions();
+  Future<List<TransactionEntity>> fetchTransactionsSince(DateTime since);
 }
