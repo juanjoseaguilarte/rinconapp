@@ -204,13 +204,20 @@ class _ShiftScreenState extends State<ShiftScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leadingWidth: 96,
+        leading: Row(
+          children: [
+            BackButton(),
+            const SizedBox(width: 8),
+            IconButton(
+              icon: const Icon(Icons.arrow_back_ios),
+              onPressed: () => _changeWeek(-7),
+              tooltip: 'Semana Anterior',
+            ),
+          ],
+        ),
         title: const Text('Gestión de Turnos'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios),
-            onPressed: () => _changeWeek(-7),
-            tooltip: 'Semana Anterior',
-          ),
           Expanded(
             child: Center(
               child: Text(
