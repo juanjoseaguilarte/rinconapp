@@ -143,21 +143,35 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildMenuButton(
       BuildContext context, String title, IconData icon, String routePath) {
-    return ElevatedButton.icon(
-      icon: Icon(icon, size: 40),
-      label: Text(title, textAlign: TextAlign.center),
-      onPressed: _loggedInUser == null
-          ? null
-          : () {
+    final bool enabled = _loggedInUser != null;
+    return InkWell(
+      onTap: enabled
+          ? () {
               context.push(routePath, extra: _loggedInUser);
-            },
-      style: ElevatedButton.styleFrom(
-        minimumSize: const Size(150, 100),
-        padding: const EdgeInsets.all(10),
-        shape: RoundedRectangleBorder(
+            }
+          : null,
+      child: Container(
+        width: 80,
+        height: 80,
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
           borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey, width: 1),
         ),
-        textStyle: const TextStyle(fontSize: 16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 40, color: enabled ? null : Colors.grey),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: enabled ? null : Colors.grey),
+            ),
+          ],
+        ),
       ),
     );
   }
