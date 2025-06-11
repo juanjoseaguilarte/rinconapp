@@ -253,17 +253,21 @@ class _ShiftScreenState extends State<ShiftScreen> {
           const SizedBox(height: 8),
           employees.isEmpty
               ? Center(child: Text('No hay empleados para el área "$title".'))
-              : SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    border: TableBorder.all(color: Colors.grey.shade400),
-                    columnSpacing: 5,
-                    headingRowHeight: 40,
-                    dataRowMinHeight: 60,
-                    dataRowMaxHeight: 80,
-                    headingRowColor:
-                        MaterialStateProperty.all(Colors.grey.shade200),
-                    columns: [
+              : Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      border: TableBorder.all(color: Colors.grey.shade400),
+                      columnSpacing: 5,
+                      headingRowHeight: 40,
+                      dataRowMinHeight: 60,
+                      dataRowMaxHeight: 80,
+                      headingRowColor: MaterialStateProperty.all(
+                          Theme.of(context).colorScheme.primary.withOpacity(0.1)),
+                      columns: [
                       const DataColumn(
                           label: SizedBox(
                               width: 130,
@@ -289,10 +293,28 @@ class _ShiftScreenState extends State<ShiftScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(employee.name,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w500)),
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 12,
+                                    child: Text(
+                                      employee.name.isNotEmpty
+                                          ? employee.name[0]
+                                          : '?',
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      employee.name,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ),
+                                ],
+                              ),
                               const Spacer(),
                               Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -350,6 +372,7 @@ class _ShiftScreenState extends State<ShiftScreen> {
                     }).toList(),
                   ),
                 ),
+              ),
         ],
       ),
     );
@@ -362,21 +385,23 @@ class _ShiftScreenState extends State<ShiftScreen> {
         onTap: () => _showEditShiftDialog(employee, date, period),
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 2.0),
+          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
+          decoration: BoxDecoration(
+            color: shift != null
+                ? (shift.entryTime == 'LIBRE'
+                    ? Colors.grey.shade200
+                    : Colors.green.shade50)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(6),
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (shift != null) ...[
-                Chip(
-                  label: Text(shift.entryTime,
-                      style: const TextStyle(
-                          fontSize: 10, fontWeight: FontWeight.w500)),
-                  backgroundColor: shift.entryTime == "LIBRE"
-                      ? Colors.grey.shade300
-                      : Colors.green.shade200,
-                  padding: EdgeInsets.zero,
-                  labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-                  visualDensity: VisualDensity.compact,
+                Text(
+                  shift.entryTime,
+                  style:
+                      const TextStyle(fontSize: 10, fontWeight: FontWeight.w600),
                 ),
                 if (shift.isImaginaria)
                   const Text('IMG',
