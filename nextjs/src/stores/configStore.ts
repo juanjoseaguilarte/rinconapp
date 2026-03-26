@@ -2,12 +2,12 @@ import { create } from "zustand";
 import { AppConfig, FeaturePermissions, Role } from "@/types";
 
 const defaultPermissions: FeaturePermissions = {
-  employees: ["superadmin", "admin"],
-  cash: ["superadmin", "admin", "encargado"],
-  tips: ["superadmin", "admin", "encargado"],
-  shifts: ["superadmin", "admin", "encargado", "empleado"],
-  tasks: ["superadmin", "admin", "encargado", "empleado"],
-  arqueo: ["superadmin", "admin"],
+  employees: ["SuperAdmin", "Admin"],
+  cash: ["SuperAdmin", "Admin", "Encargado"],
+  tips: ["SuperAdmin", "Admin", "Encargado"],
+  shifts: ["SuperAdmin", "Admin", "Encargado", "Empleado"],
+  tasks: ["SuperAdmin", "Admin", "Encargado", "Empleado"],
+  arqueo: ["SuperAdmin", "Admin"],
 };
 
 interface ConfigState {

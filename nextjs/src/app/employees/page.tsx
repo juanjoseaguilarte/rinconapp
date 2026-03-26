@@ -16,14 +16,14 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Plus, Pencil, UserCheck, UserX } from "lucide-react";
 import Link from "next/link";
 
-const ROLES: Role[] = ["admin", "encargado", "empleado"];
-const POSITIONS: Position[] = ["sala", "cocina", "barra"];
+const ROLES: Role[] = ["Admin", "Encargado", "Empleado"];
+const POSITIONS: Position[] = ["Sala", "Cocina", "Barra"];
 
 const emptyForm = {
   name: "",
   pin: "",
-  role: "empleado" as Role,
-  position: "sala" as Position,
+  role: "Empleado" as Role,
+  position: "Sala" as Position,
 };
 
 export default function EmployeesPage() {
@@ -67,7 +67,7 @@ export default function EmployeesPage() {
     setEditing(emp);
     setForm({
       name: emp.name,
-      pin: emp.pin,
+      pin: String(emp.pin),
       role: emp.role,
       position: emp.position,
     });
@@ -78,16 +78,20 @@ export default function EmployeesPage() {
     if (!form.name || !form.pin) return;
     setSaving(true);
     try {
+      const pinNumber = Number(form.pin);
       if (editing) {
         await updateDoc(doc(db, "employees", editing.id), {
           name: form.name,
-          pin: form.pin,
+          pin: pinNumber,
           role: form.role,
           position: form.position,
         });
       } else {
         await addDoc(collection(db, "employees"), {
-          ...form,
+          name: form.name,
+          pin: pinNumber,
+          role: form.role,
+          position: form.position,
           active: true,
           createdAt: serverTimestamp(),
         });

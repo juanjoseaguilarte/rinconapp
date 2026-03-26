@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Employee } from "@/types";
 import { useAuthStore } from "@/stores/authStore";
@@ -41,24 +41,21 @@ export default function LoginPage() {
 
   async function fetchEmployees() {
     try {
-      const snap = await getDocs(
-        query(collection(db, "employees"), where("active", "==", true))
-      );
+      const snap = await getDocs(collection(db, "employees"));
       const employees = snap.docs.map((d) => ({
         id: d.id,
         ...d.data(),
-        createdAt: d.data().createdAt?.toDate?.() ?? new Date(),
       })) as Employee[];
 
       setGroups({
-        superadmins: employees.filter((e) => e.role === "superadmin"),
-        admins: employees.filter((e) => e.role === "admin"),
-        encargados: employees.filter((e) => e.role === "encargado"),
+        superadmins: employees.filter((e) => e.role === "SuperAdmin"),
+        admins: employees.filter((e) => e.role === "Admin"),
+        encargados: employees.filter((e) => e.role === "Encargado"),
         sala: employees.filter(
-          (e) => e.role === "empleado" && e.position === "sala"
+          (e) => e.role === "Empleado" && e.position === "Sala"
         ),
         cocina: employees.filter(
-          (e) => e.role === "empleado" && e.position === "cocina"
+          (e) => e.role === "Empleado" && e.position === "Cocina"
         ),
       });
     } catch (e) {
@@ -85,7 +82,8 @@ export default function LoginPage() {
 
   async function handleConfirm() {
     if (!selected) return;
-    if (pin === selected.pin) {
+    // PIN stored as number in Firestore
+    if (Number(pin) === selected.pin) {
       login(selected);
       router.replace("/dashboard");
     } else {

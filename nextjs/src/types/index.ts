@@ -1,15 +1,15 @@
-export type Role = "superadmin" | "admin" | "encargado" | "empleado";
-export type Position = "sala" | "cocina" | "barra";
+export type Role = "SuperAdmin" | "Admin" | "Encargado" | "Empleado";
+export type Position = "Sala" | "Cocina" | "Barra" | string;
 export type ShiftPeriod = "mañana" | "tarde" | "noche";
 
 export interface Employee {
   id: string;
   name: string;
-  pin: string;
+  pin: number;
   role: Role;
   position: Position;
-  active: boolean;
-  createdAt: Date;
+  active?: boolean;
+  createdAt?: Date;
 }
 
 export interface Shift {
@@ -73,6 +73,14 @@ export interface FeaturePermissions {
   tasks: Role[];
   arqueo: Role[];
 }
+
+// Helper: roles in DB are capitalized (Admin, Encargado, Empleado)
+export const ROLE_LABELS: Record<Role, string> = {
+  SuperAdmin: "Super Admin",
+  Admin: "Admin",
+  Encargado: "Encargado",
+  Empleado: "Empleado",
+};
 
 export interface AppConfig {
   id: string;

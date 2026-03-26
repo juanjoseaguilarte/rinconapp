@@ -71,8 +71,8 @@ export default function DashboardPage() {
 
   if (!currentEmployee) return null;
 
-  const isSuperAdmin = currentEmployee.role === "superadmin";
-  const isAdmin = currentEmployee.role === "admin" || isSuperAdmin;
+  const isSuperAdmin = currentEmployee.role === "SuperAdmin";
+  const isAdmin = currentEmployee.role === "Admin" || isSuperAdmin;
 
   const visibleItems = menuItems.filter((item) => {
     if (item.feature === null) return isAdmin;
